@@ -1,0 +1,104 @@
+db.groups
+
+db.groups.path
+ = null
+ = db.groups._id,_id,_id
+
+db.groups.children
+ = [db.groups._id(s)]
+
+db.groups.type
+ = follower
+ = dependent
+
+db.groups.order
+
+
+parentHidden, parentOpen
+
+
+index on { contextId, hidden, path, type, isOpen, order }
+
+
+filter for open groups in toplevel = [results]
+
+find db.groups where _id is $in [results] and path
+
+on opening the "tab" /comics/spiderman:
+  update db.groups to hidden = false where path is ^/comics/spiderman and hidden = true or null (!hidden)
+
+select db.groups where path is ^/ and (is = true || null)
+
+select db.groups where path is ^/ and hidden = false
+
+update db.groups set hidden = false where path is ^/comics and open = true
+
+root =
+    group 1 -- true -- open -- null
+        group 3 -- true -- open -- dependent
+            group 10 -- false -- closed -- dependent
+                group 12 -- open -- dependent
+                group 11 -- open -- follower
+            group 4 -- open -- dependent
+            group 5 -- open -- follower
+        group 11 -- open -- dependent
+        group 5 -- open -- follower
+        group 6 -- open -- follower
+    group 2 -- open -- null
+          group 7 -- open -- dependent
+          group 8 -- open -- follower
+    group 9 -- open -- null
+
+open depOpen folOpen
+
+level 0 is null
+
+
+Tasks
+-----
+db.tasks
+
+db.tasks._id
+db.tasks.groups
+
+index on { groupPaths or ProjectId? - I think projectId }
+
+
+collections
+  contexts
+  projects
+  tasks
+  groups
+
+
+
+contexts
+  index on { userId, order }
+           { userId, title }
+           { userId, desc }
+
+  fields { userId, projects [], order, title, desc}
+
+
+projects
+  index on { userId, order }
+           { userId, title }
+           { userId, desc }
+
+  fields { userId, root_groups [], order, title, desc }
+
+
+groups
+  index on { userId, projectId, path, type }
+  fields { userId, projectId, path, type, folOpen, depOpen, order, children [], leader }
+
+
+tasks
+  index on { userId, projects [] }
+           { userId, title }
+           { userId, desc }
+
+  fields { userId, projects [], groups [], title, desc, }
+
+users
+  fields { (_id = userId), lastContext, hashedPassword, salt }

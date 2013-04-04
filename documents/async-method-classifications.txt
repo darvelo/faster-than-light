@@ -1,0 +1,26 @@
+async.auto
+
+async.waterfall
+
+async.series
+async.parallel
+
+
+
+asynchronously:
+
+perform operations on collections
+test collections and return result of that test
+
+call an async function while a synchronous test is true (or false)
+call an async function over and over, forever
+
+perform async functions in series, final callback with results
+perform async functions in parallel, final callback with results
+
+perform async functions in series, each passing callbacks to the next one, final callback when done
+
+graph which async functions are dependent on the others
+
+
+push async functions into a queue with options on which are called when and to modify the stack

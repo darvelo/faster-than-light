@@ -1,0 +1,44 @@
+figure out a way that the site will get lots of pageviews. i think this means having public profiles that others would be interested in seeing. this makes for exponential pageviews than a single person viewing their own page. this is if the site isn't subscription-based, or if there's a hybrid monetary model.
+
+encrypt all sensitive or embarrassing user data in the server-side application before sending it to the database. if a user forgets their password, need to have backup questions that are encrypted with a site-specific key, so that no plain-text values are in DB and the questions are encrypted with a known value since user password is lost.
+
+WAI-ARIA and HTML5 Semantic tags
+
+sitemap.xml in conjunction with robots.txt
+
+rewrite backbone.sync, backbone.render (?)
+plan out the URLs
+
+responsive web design
+
+documentation with DocBlockr in Sublime and Dox in Node
+
+sass
+
+testing with mocha and testacular ( uses PhantomJS and something else? )
+
+Node app with Express, Connect, Sequelize for ORM, Passport for Auth
+
+handlebars templates
+
+backbone, backbone.layoutManager
+
+
+npm install requirejs:
+  * sharing of validation between Backbone and Node
+    -- Backbone receives it through requirejs module
+
+  * sharing of templates between Backbone and Node
+    -- Backbone receives it through requirejs text plugin
+
+lodash
+
+jquery
+
+modernizr
+
+html5/es5 shim
+
+requirejs ( and text plugin? )
+
+twitter bootstrap

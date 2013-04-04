@@ -1,0 +1,39 @@
+statistics page: define what relationships you want to highlight -- then look online at d3.js to see what you can use them for
+
+no two-finger swipe for mobile web. only Tap, DoubleTap, Swipe, Drag, Pinch, and Rotate gestures.
+
+mapping functionality? can use  d3 for thematic maps and leaflet for geomaps
+
+text-shadow
+box-shadow
+linear-gradient
+border-radius
+icons
+textures
+
+* data modeling during design
+* sass and organizing the styling hierarchically
+* responsive design
+* mobile first
+
+plan out the URLs
+identify template areas (handlebars + backbone)
+  - on static pages, none
+  - on dynamic public pages (crawlable), it depends
+  - on dynamic private (app 'pages'), all
+
+
+figure out a way that the site will get lots of pageviews. i think this means having public profiles that others would be interested in seeing. this makes for exponential pageviews than a single person viewing their own page. this is if the site isn't subscription-based, or if there's a hybrid monetary model.
+
+
+iphone app gives alerts for events. doing that kinda thing serverside might be too computationally intensive to keep up with everyone's alerts.
+
+Colors:
+-------
+
+* think first of the largest color, which will be the most dominant. it sets the tone for the rest of the color hierarchy
+* value and saturation contrast, focus, and grouping control a viewer's eye
+* there's no such thing as a good color. there are only good color relationships. the relationships of hue, value, and saturation
+* text must have contrast of value if you want viewers to read the text
+* you can use a thin slice of a hue to have different matching colors
+* different colors have different natural "values" (black to white). red and blue tend to be darker than yellow at the same saturation, for example.

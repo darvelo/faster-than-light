@@ -1,0 +1,19 @@
+{
+  "test_page": "test/browser/require-tests/index.html",
+  "src_files": [
+    "test/browser/require-tests/**/*.js",
+    "app/**/*.js"
+  ],
+  "launchers": {
+    "Node": {
+       "command": "./testem-helper.sh tap",
+       "protocol": "tap"
+    }
+  },
+  "launch_in_dev": [
+    "Node",
+    "Chromium",
+    "Firefox",
+    "PhantomJS"
+  ]
+}

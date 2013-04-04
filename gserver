@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+GRUNT=`which grunt`
+NODEMON=`which nodemon`
+
+if [[ $GRUNT && $NODEMON ]]; then
+  $NODEMON $GRUNT server
+else
+  echo "grunt and/or nodemon is not installed!"
+fi

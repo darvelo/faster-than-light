@@ -1,0 +1,119 @@
+-moz-hyphens
+-moz-user-select
+-border-collapse
+content-editable
+title attribute gives a tooltip
+
+)]}' on response
+they use mouseover = goes in
+mousemove = moves around inside
+mousedown = click and hold
+mousemove continues to know how far the mouse has dragged
+mouseout = the div is hidden, mouseout registers since mouse has moved outside the bounds
+
+while the mouse is held down, another div with the exact dimesions and content of the hidden div is created, at the same distance from the top and left that the mouse grabbed it, position absolute with the outermost container as parent, and is moved along with the mouse along the y axis until mouseup
+
+the 
+
+Forward:
+
+"action_list":[{
+	"action_type": "move",
+	"action_id": "9",
+	"id": "02447225796365258833:0:844965441",
+	"source_list": "02447225796365258833:0:0",
+	"dest_parent": "02447225796365258833:0:4"
+}],
+"client_version": -1,
+"current_list_id": "02447225796365258833:0:0",
+"latest_sync_point": 63491226273000000
+
+Back:
+
+"action_list":[{
+	"action_type": "move",
+	"action_id": "10",
+	"id": "02447225796365258833:0:844965441",
+	"prior_sibling_id": "02447225796365258833:0:4",
+	"source_list": "02447225796365258833:0:0",
+	"dest_parent": "02447225796365258833:0:0"
+}],
+"client_version": -1,
+"current_list_id": "02447225796365258833:0:0",
+"latest_sync_point":63491226423000000
+
+Forward Again:
+
+"action_list":[{
+	"action_type": "move",
+	"action_id": "11",
+	"id": "02447225796365258833:0:844965441",
+	"source_list": "02447225796365258833:0:0",
+	"dest_parent": "02447225796365258833:0:4"
+}],
+"client_version": -1,
+"current_list_id": "02447225796365258833:0:0",
+"latest_sync_point": 63491226424000000
+
+Back Again: 
+
+"action_list":[{
+	"action_type": "move",
+	"action_id": "12",
+	"id": "02447225796365258833:0:844965441",
+	"prior_sibling_id": "02447225796365258833:0:4",
+	"source_list": "02447225796365258833:0:0",
+	"dest_parent": "02447225796365258833:0:0"
+}],
+"client_version": -1,
+"current_list_id": "02447225796365258833:0:0",
+"latest_sync_point": 63491226425000000
+
+
+Move two forward:
+
+"action_list":[{
+	"action_type":"move",
+	"action_id":"20",
+	"id":"02447225796365258833:0:844965441",
+	"source_list":"02447225796365258833:0:0",
+	"dest_parent":"02447225796365258833:0:4"
+}],
+"client_version":-1,
+"current_list_id":"02447225796365258833:0:0",
+"latest_sync_point":63491226832000000
+
+"action_list":[{
+	"action_type":"move",
+	"action_id":"23",
+	"id":02447225796365258833:0:5",
+	"prior_sibling_id":"02447225796365258833:0:844965441",
+	"source_list":"02447225796365258833:0:0",
+	"dest_parent":"02447225796365258833:0:4"
+}],
+"client_version":-1,
+"current_list_id":"02447225796365258833:0:0",
+"latest_sync_point":63491226838000000
+
+
+Check one off and on:
+
+"action_list":[{
+	"action_type":"update",
+	"action_id":"21",
+	"id":"02447225796365258833:0:5",
+	"entity_delta":{"completed":true}
+}],
+"client_version":-1,
+"current_list_id":"02447225796365258833:0:0",
+"latest_sync_point":63491226835000000
+
+"action_list":[{
+	"action_type":"update",
+	"action_id":"22",
+	"id":"02447225796365258833:0:5",
+	"entity_delta":{"completed":false}
+}],
+"client_version":-1,
+"current_list_id":"02447225796365258833:0:0",
+"latest_sync_point":63491226837000000

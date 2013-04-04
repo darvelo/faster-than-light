@@ -1,0 +1,54 @@
+@import "modified-bootstrap-3.0.scss";
+
+// %span-fix {
+//   @extend [class^="span"];
+//   @extend [class*="span"];
+// }
+
+@for $i from 1 through 12 {
+  .span#{$i} {
+      @extend [class^="span"];
+      @extend [class*="span"];
+  }
+}
+
+/*
+  bootstrap breakpoints
+  --------------------------
+  max-device-width: |  480px
+  min-width:        |  768px (.hidden(/visible)-tablet until max: 979px)
+  min-width:        |  992px
+  min-width:        | 1200px
+  ==========================
+*/
+
+.start-btn {
+  @extend .btn, .btn-primary;
+}
+
+.sidebar {
+}
+
+@media screen and (max-width: 480px) {
+  .sidebar {
+    float: right;
+    @extend .span2;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .sidebar {
+    @extend .span5;
+  }
+}
+  .sidebar-nav {
+    @extend .nav, .span2;
+    @extend .span3;
+  }
+// }
+
+// .tasks {
+
+//   @media screen and (min-width: 768px) {
+//     @extend .span2;
+//   }
+// }

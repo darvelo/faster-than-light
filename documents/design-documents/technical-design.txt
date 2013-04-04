@@ -1,0 +1,132 @@
+img, obj, embed { max-width: 100%; }
+
+possible breakpoints: 480, 600, 768, 992 and 1382px
+- source: http://stuffandnonsense.co.uk/projects/320andup/
+
+
+Bootstrap 3.0 changes to regard:
+--------------------------------
+  Change .btn-navbar to .navbar-toggle.
+      More consistent naming schema
+      Redesigned it a bit, lightening the styles and widening it, while also positioning it absolutely to the top right.
+  Updated navbar brand component:
+      Changed .brand to .navbar-brand for a more consistent naming schema.
+      Center aligned .navbar-brand in mobile views, with a max-width: 200px; to limit hit area given a likely navbar toggle will be very near by.
+
+Alternatives to Bootstrap:
+-------------------------
+https://github.com/chriseppstein/compass/wiki/Compass-Plugins
+susy, compass, breakpoint
+
+config.rb in grunt to use:
+insert lines into config.rb => require "susy"
+this requires the susy framework into grunt's compass
+https://github.com/gruntjs/grunt-contrib-compass
+=========================
+
+* identify which pages are static and can be cached and for how long
+* cache all assets and cachebust when needed
+* crawlable pages are template-rendered serverside
+
+encrypt all sensitive or embarrassing user data in the server-side application before sending it to the database. if a user forgets their password, need to have backup questions that are encrypted with a site-specific key, so that no plain-text values are in DB and the questions are encrypted with a known value since user password is lost.
+
+store datetimes in UTC, convert back to local time clientside.
+
+
+WAI-ARIA and HTML5 Semantic tags
+fieldset tag
+
+sitemap.xml in conjunction with robots.txt
+
+rewrite backbone.sync, backbone.render (?)
+
+responsive web design
+
+documentation with DocBlockr in Sublime and Dox in Node
+
+sass
+
+testing with mocha and testacular ( uses PhantomJS and something else? )
+
+Node app with Express, Connect, Sequelize for ORM, Passport for Auth
+
+
+backbone, backbone.layoutManager
+
+
+npm install requirejs:
+  * sharing of validation between Backbone and Node
+    -- Backbone receives it through requirejs module
+
+  * sharing of templates between Backbone and Node
+    -- Backbone receives it through requirejs text plugin or precompiled in AMD module
+
+lodash
+
+jquery
+- .index() for checking position under parent
+- .insertBefore(), .insertAfter(), .prependTo() and .appendTo() for moving items around
+
+modernizr
+
+html5-shiv / es5-shim
+
+requirejs and text plugin
+
+twitter bootstrap
+
+charts: D3.js
+mapping: Leaflet for geomaps, d3 for thematic maps (as seen in infographics)
+touch events: Hammer.js
+
+jQuery AJAX requests provide HTTP Header "X-Requested-With: XMLHttpRequest" -> good for testing if AJAX request (but not foolproof - don't rely on it for security)
+
+JSON responses should prepend )]}' to response to prevent bad people from using it
+
+-moz-hyphens
+-moz-user-select
+-border-collapse
+box-sizing: border-box
+content-editable
+title attribute is text used for tooltip
+
+
+how issue commenting works on github:
+-------------------------------
+page: /user/repository/issues/335
+
+form:
+  action: /user/repository/issues_comments
+  method: post
+  inputs:
+    textarea: user text
+    hidden:
+      name: authenticity_token
+      value: csrf token (long gibberish)
+    hidden:
+      name: issue
+      value: 335
+    file:
+      multiple: multiple
+  button:
+    type: submit
+
+
+
+how drag-and-drop of tasks works in google calendar:
+----------------------------------------------------
+they use mouseover = goes in
+mousemove = moves around inside
+mousedown = click and hold
+mousemove continues to know how far the mouse has dragged
+mouseout = the div is hidden, mouseout registers since mouse has moved outside the bounds
+
+while the mouse is held down, another div with the exact dimesions and content of the hidden div is created, at the same distance from the top and left that the mouse grabbed it, position absolute with the outermost container as parent, and is moved along with the mouse along the y axis until mouseup
+
+
+Email:
+- reminders about upcoming calendar events with a link and metadata for it
+- daily recap of what changed in all your projects, broken down by project and then by type of change and who changed it
+- suggestion to join upcoming 30 minute live online class with Q&A
+- newsletter with info on power features like add-ons by third-parties categorized by type
+- reminders when your trial runs out with info on getting the most of your experience (again with suggestion for live online class) and a relaxed encouragement to use the software with a confidence that you'll love using it
