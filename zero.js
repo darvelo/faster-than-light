@@ -8,7 +8,8 @@ var express = require('express'),
     silent = 'test' === process.env.NODE_ENV,
     devMode = process.env.NODE_ENV === 'dev';
 
-app.db = require('./lib/database');
+//app.db = require('./lib/database/sequelize');
+app.db = require('./lib/database/mongoose');
 app.passport = require('passport');
 app.api = require('./api');
 app.pages = require('./routes');
@@ -151,7 +152,9 @@ app.use(function(err, req, res, next){
 
 app.get('/', function(req, res) { res.render('index', { dev: devMode }); });
 app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
-app.get('/api/contexts', app.api.contexts.getAll);
+//app.get('/api/contexts', app.api.contexts.getAll);
+app.get('/api/contexts', app.db.getContexts);
+app.get('/api/seed-contexts', app.db.seedContexts);
 
 app.get('/user/:id', app.pages.home.get);
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
