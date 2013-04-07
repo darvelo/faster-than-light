@@ -153,8 +153,8 @@ app.use(function(err, req, res, next){
 app.get('/', function(req, res) { res.render('index', { dev: devMode }); });
 app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
 //app.get('/api/contexts', app.api.contexts.getAll);
-app.get('/api/contexts', app.db.getContexts);
-app.get('/api/seed-contexts', app.db.seedContexts);
+app.get('/api/contexts', app.api.contexts.getAll);
+app.get('/api/seed', app.db.seed);
 
 app.get('/user/:id', app.pages.home.get);
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
