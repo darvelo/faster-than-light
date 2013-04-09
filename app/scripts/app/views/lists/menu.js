@@ -12,7 +12,10 @@ function (Backbone, ListMenuItemView) {
     // TODO: check if these classes are needed
     className: 'nav nav-list lists-nav',
 
-    events: {},
+    events: {
+      'dblclick a': 'test',
+      'contextmenu a': 'cntx',
+    },
 
     initialize: function(){
       this.listenTo(this.collection, 'add', this.render);
@@ -36,6 +39,16 @@ function (Backbone, ListMenuItemView) {
       }, this);
 
       return this;
+    },
+
+    test: function (e) {
+      console.log('doubleclick');
+    },
+
+    cntx: function contextMenu (e) {
+      console.log('contextmenu');
+      e.preventDefault();
+      e.stopPropagation();
     }
   });
 

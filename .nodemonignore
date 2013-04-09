@@ -8,7 +8,7 @@
 # /vendor/*
 # /public/css/styles.css
 # ./server.js
-# ./.git/*
+/.git/
 /app/
 /node_modules/
 /test/

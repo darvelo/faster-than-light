@@ -52,7 +52,9 @@ exports.get = function(req, res, next) {
 
       fn(null, html);
     },
-  ], function(err, html) {
+  ],
+
+  function(err, html) {
     if (err) {
       console.error(err);
       return next(err);

@@ -9,7 +9,7 @@ function (Backbone, TaskList) {
   var TaskLists = Backbone.Collection.extend({
     model: TaskList,
     url: '/api/contexts',
-    comparator: 'order'
+    comparator: 'order',
   });
 
   return TaskLists;

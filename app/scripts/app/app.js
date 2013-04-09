@@ -40,8 +40,8 @@ function(AppConfig, ApiManager, AppView, AuthView, ListMenuView, TaskLists) {
           console.log('yoyoyo')
           self.collections.lists.fetch({
             data: { userId: '@me' },
-            // success: function() {
-            //   self.views.listMenu.render();
+            // success: function(collection, response, options) {
+            //   //self.views.listMenu.render();
             // }
           });
         }

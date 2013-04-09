@@ -14,7 +14,7 @@ exports.getAll = function(req, res, next) {
     }
 
     // TODO: Validate JSON
-    res.send(contexts);
+    res.send(JSON.stringify(contexts));
   });
 };
 
