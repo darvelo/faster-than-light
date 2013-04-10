@@ -35,7 +35,7 @@ exports.get = function(req, res, next) {
       app.db.bootstrap('dave', fn); // TODO: change this to userId using sessions and authentication
     },
     function(bootstrap, fn) {
-      console.log('bootstrap is', bootstrap);
+      // console.log('bootstrap is', bootstrap);
 
       res.render('app',
         {
