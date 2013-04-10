@@ -32,8 +32,8 @@ app.set('view engine', 'jade');
 
 app.use(express.favicon());
 silent || app.use(express.logger('dev'));
-app.use(express.cookieParser(/* 'some secret key to sign cookies' */));
-//app.use(express.session());
+app.use(express.cookieParser(/* 'some secret key to sign cookies' */ 'secretkey' ));
+// app.use(express.session());
 app.use(express.compress());
 app.use(express.methodOverride());
 app.use(express.bodyParser());
@@ -41,7 +41,7 @@ app.use(express.bodyParser());
 app.use(expressValidator);
 
 
-app.use('/api', app.api.fauxAuthenticate)
+app.use('/api', app.api.fauxAuthenticate);
 
 
 
@@ -150,13 +150,25 @@ app.use(function(err, req, res, next){
  * Routes
  */
 
-app.get('/', function(req, res) { res.render('index', { dev: devMode }); });
-app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
-//app.get('/api/contexts', app.api.contexts.getAll);
-app.get('/api/contexts', app.api.contexts.getAll);
-app.get('/api/seed', app.db.seed);
+app.get('/', function(req, res) {
+  'use strict';
 
-app.get('/user/:id', app.pages.home.get);
+  // if (req.session.userId) {
+    app.pages.home.get(req, res);
+  // } else {
+  //   res.render('index', { dev: devMode });
+  // }
+});
+// app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
+//app.get('/api/contexts', app.api.contexts.getAll);
+app.get('/api/contexts', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.getAll);
+app.post('/api/contexts/:id', app.api.contexts.postContext);
+
+app.get('/api/seed', app.db.seed);
+app.get('/api/testjson', function (req, res) { console.log('json received?'); console.log(req.body); res.send(req.body); });
+app.post('/api/testjson', function (req, res) { console.log('json received?'); console.log(typeof req.body, req.body, req.body.title); res.send(req.body); });
+
+// app.get('/user/:id', app.profiles);
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
 app.get('/login', app.pages.login.get);
 app.post('/login',
