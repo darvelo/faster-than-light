@@ -32,7 +32,7 @@ exports.get = function(req, res, next) {
 
   async.waterfall([
     function(fn) {
-      app.db.bootstrap('dave', fn); // TODO: change this to userId using sessions and authentication
+      app.db.bootstrap('dave', fn); // TODO: change this to username using sessions and authentication
     },
     function(bootstrap, fn) {
       // console.log('bootstrap is', bootstrap);
@@ -41,7 +41,7 @@ exports.get = function(req, res, next) {
         {
           dev: app.get('env') === 'dev',
           // regex protects against script injection attacks
-          dataBootstrap: 'var bootstrap = ' + JSON.stringify(bootstrap).replace(/</g, '&lt;') + ';'
+          dataBootstrap: 'var bootstrap = ' + JSON.stringify(bootstrap).replace(/</g, '&lt;') + ';',
         },
         fn);
     },
