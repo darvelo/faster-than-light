@@ -8,17 +8,55 @@ exports.use = function (appInstance) {
 };
 
 exports.getAll = function(req, res, next) {
-
-
-
-
-  app.db.getContexts(function(err, contexts) {
+  app.db.getContexts('516efbdc2d11144827000002', function(err, contexts) {
     if (err) {
       return next(err);
     }
 
     // TODO: Validate JSON
+
+    var response = {};
+    response.other = { one: 'three' };
+    response.projects = contexts;
+    res.send(JSON.stringify(response));
+  });
+};
+
+exports.oneById = function (req, res, next) {
+  // req.path is actual path
+  // req.params.xxx is same as text from route /home/:xxx/yo
+  // req.query.xxx is same as GET /home/yo?xxx=blah
+  // req.query.xxx.yyy is GET /home/yo?xxx[yyy]=blah
+
+  // var userId = req.session.userid;
+  app.db.getContextById('516efbdc2d11144827000002', req.params.id, function (err, contexts) {
+    if (err) {
+      return next(err);
+    } else if (contexts.length > 1) {
+      return next(new Error('too many contexts found by one id'));
+    }
+
+    // validate here
+    //
+
     res.send(JSON.stringify(contexts));
+  });
+};
+
+exports.getProjectsByContext = function (req, res, next) {
+  app.db.fullMontyByContext('516efbdc2d11144827000002', req.params.id, function (err, projects, auxProjects, tasks) {
+    if (err) {
+      return next(err);
+    }
+
+    // validate here
+    //
+
+    res.send(JSON.stringify({
+      projects: projects,
+      auxProjects: auxProjects,
+      tasks: tasks,
+    }));
   });
 };
 

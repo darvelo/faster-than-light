@@ -162,6 +162,8 @@ app.get('/', function(req, res) {
 // app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
 //app.get('/api/contexts', app.api.contexts.getAll);
 app.get('/api/contexts', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.getAll);
+app.get('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.oneById);
+app.get('/api/batch/context/:id', app.api.contexts.getProjectsByContext);
 app.post('/api/contexts/:id', app.api.contexts.postContext);
 
 app.get('/api/seed', app.db.seed);

@@ -1,4 +1,5 @@
 @import "modified-bootstrap-3.0.scss";
+@import "layoutPlugin.scss";
 
 // %span-fix {
 //   @extend [class^="span"];
@@ -32,12 +33,12 @@
 @media screen and (max-width: 480px) {
   .sidebar {
     float: right;
-    @extend .span2;
+    // @extend .span2;
   }
 }
 @media screen and (min-width: 1200px) {
   .sidebar {
-    @extend .span5;
+    // @extend .span5;
   }
 }
   .sidebar-nav {
@@ -52,3 +53,44 @@
 //     @extend .span2;
 //   }
 // }
+
+
+html, body {
+  height: 100%;
+}
+
+#container {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.actions {
+  position: absolute;
+  height: 20%;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.actionView {
+  position: absolute;
+  height: 80%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.todos {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.contextsList, .contextsLayout {
+  overflow: auto;
+}
+
+#inactiveContexts {
+  display: none;
+}
