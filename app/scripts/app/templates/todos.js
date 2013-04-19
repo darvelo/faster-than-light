@@ -6,7 +6,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
   
 
 
-  return "<div class=\"contextsList\">\n<ul class=\"contexts\"></ul>\n</div>\n<div class=\"contextsPanes\"></div>\n<div id=\"inactiveContexts\"></div>\n";
+  return "<div class=\"contextsList\">\n<ul class=\"contexts\"></ul>\n</div>\n<div class=\"contextsPanes\">\n<div class=\"activateAContext\"></div>\n</div>\n<div id=\"inactiveContexts\"></div>\n";
   })
 
 });

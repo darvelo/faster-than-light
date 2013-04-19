@@ -23,4 +23,7 @@ function (Backbone) {
   //   }
   // };
 
+  return {
+    paneOrder: ['center', 'south', 'west', 'north', 'east'],
+  };
 });

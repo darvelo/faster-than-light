@@ -166,6 +166,9 @@ app.get('/api/contexts/:id', /* validation middleware */ /* app.validator.contex
 app.get('/api/batch/context/:id', app.api.contexts.getProjectsByContext);
 app.post('/api/contexts/:id', app.api.contexts.postContext);
 
+app.put('/api/users/:id', app.api.users.putUser);
+app.post('/api/users/:id', app.api.users.putUser);
+
 app.get('/api/seed', app.db.seed);
 app.get('/api/testjson', function (req, res) { console.log('json received?'); console.log(req.body); res.send(req.body); });
 app.post('/api/testjson', function (req, res) { console.log('json received?'); console.log(typeof req.body, req.body, req.body.title); res.send(req.body); });

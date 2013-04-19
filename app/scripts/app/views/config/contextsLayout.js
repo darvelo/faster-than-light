@@ -23,6 +23,7 @@ function ($) {
       , autoResize:              true        // IF size is 'auto' or a percentage, then recalc 'pixel size' whenever the layout resizes
       , autoReopen:              true        // IF a pane was auto-closed due to noRoom, reopen it when there is room? False = leave it closed
       , initClosed:           false
+      , onhide: function (paneType, el, state, options, layoutName) { console.log('im hiding!', paneType, state.size) }
       , north: {
       }
       , south: {
@@ -31,8 +32,9 @@ function ($) {
            minWidth:       200
         ,  minHeight:        200
       }
-        , onhide: function (paneType, el, state, options, layoutName) { console.log('im hiding!', paneType, state.size) }
       , west: {
+      }
+      , east: {
       }
     }
   };

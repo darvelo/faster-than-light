@@ -1,9 +1,11 @@
 define([
   'backbone',
-  'views/lists/context',
+  'core/config',
+  'views/context',
+  'underscore',
 ],
 
-function (Backbone, ContextListItem) {
+function (Backbone, appConfig, ContextListItemView, _) {
   'use strict';
 
   var Contexts = Backbone.View.extend({
@@ -19,12 +21,10 @@ function (Backbone, ContextListItem) {
     },
 
     render: function render () {
-      console.log('el', this.$el);
-
       this.collection.resort();
       this.collection.each(function (context) {
-        var ContextView = new ContextListItem({ app: this.app, model: context });
-        this.$el.append( ContextView.render().el );
+        var ContextListItem = new ContextListItemView({ app: this.app, model: context });
+        this.$el.append( ContextListItem.render().el );
       }, this);
 
       return this;
