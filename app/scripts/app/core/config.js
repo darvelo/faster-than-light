@@ -25,5 +25,6 @@ function (Backbone) {
 
   return {
     paneOrder: ['center', 'south', 'west', 'north', 'east'],
+    replacementPaneOrder: ['east', 'west', 'north', 'south'],
   };
 });

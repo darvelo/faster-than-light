@@ -18,6 +18,8 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
 
     events: {
       'takeCenterPane': 'takeCenterPane',
+      'paneResize': 'publishPaneResize',
+      'paneClose': 'finishOtherPaneRemoval',
     },
 
     initialize: function initialize () {
@@ -134,14 +136,18 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
 
     findCenterPaneReplacement: function findCenterPaneReplacement () {
       var panes = this.app.innerLayout.panes,
-          priority = appConfig.paneOrder.slice(1),
+          priority = appConfig.replacementPaneOrder,
           replacementPosition;
 
       replacementPosition = _.find(priority, function (position) {
         return panes[position];
       });
 
-      return panes[replacementPosition]; // will return undefined if non-existent
+      // will return undefined if no non-center panes exist
+      return replacementPosition && {
+        $el: panes[replacementPosition],
+        position: replacementPosition,
+      };
     },
 
     takeCenterPane: function takeCenterPane () {
@@ -149,47 +155,62 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
       this.$el
         .removeClass()
         .addClass('ui-layout-center')
-        .addClass(this.className);
+        .addClass(this.className)
+        .appendTo(this.$contextsPanes);
     },
 
-    savePaneOrder: function savePaneOrder () {
+    publishPaneResize: function publishPaneResize (e, paneType, paneSize) {
+      this.model.trigger('pane:resize', paneType, paneSize);
+    },
+
+    savePanePositions: function savePanePositions () {
       if (this.app.booting) {
         return;
       }
 
       var panes = this.app.innerLayout.panes,
-          paneModelIds = {};
+          panePositions = {};
 
+      // don't save sizes because nothing is open/closed
       if (!panes) {
-        this.app.user.set('lastContexts', paneModelIds);
+        this.app.user.set('lastContexts', panePositions);
         this.app.user.save();
         return;
       }
 
+      // get sizes of open panes
       _.each(appConfig.paneOrder, function (position) {
         if (panes[position]) {
-          paneModelIds[position] = panes[position].data('id');
+          panePositions[position] = panes[position].data('id');
           return;
         }
 
-        delete paneModelIds[position];
+        delete panePositions[position];
       });
 
-      console.log('paneModelIds', paneModelIds);
-      this.app.user.set('lastContexts', paneModelIds);
+      this.app.user.set('lastContexts', panePositions);
       this.app.user.save();
     },
 
-    addPane: function addPane (bootingPosition) {
-      var position,
-          positionClass;
+    setPaneSize: function setPaneSize (position) {
+      if (!this.app.innerLayout) {
+        return;
+      }
 
-      if (bootingPosition) { // undefined if not booting
-        position = bootingPosition;
-      } else if (!this.app.innerLayout) {
+      var sizes = this.app.user.get('paneSizes');
+
+      if ( _.isObject(sizes) && _.isNumber(sizes[position])) {
+        this.app.innerLayout.options[position].size = sizes[position];
+      }
+    },
+
+    addPane: function addPane (position) {
+      var positionClass;
+
+      if (!this.app.innerLayout) {
         position = 'center';
       } else {
-        position =  this.findFreePane();
+        position = position || this.findFreePane();
       }
 
       if (!position) {
@@ -209,46 +230,90 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
       this.renderProjects();
       this.$el.appendTo(this.app.$contextsPanes);
 
-      if (!this.app.innerLayout) {
+      if (!this.app.innerLayout) { // set up center position
         this.app.innerLayout = this.app.$contextsPanes.layout(innerLayoutConfig);
       } else {
+        this.setPaneSize(position); // only need to set sizes for non-center. center takes up all space
         this.app.innerLayout.addPane(this.position);
       }
 
       this.app.$contextsPanes.addClass('active');
-      this.savePaneOrder();
+      this.savePanePositions();
       this.model.trigger('change:active');
     },
 
     removePane: function removePane () {
-      var replacementPane;
-
       // check to make sure it's actually an active pane
       if (this.$el.parent().attr('id') === 'inactiveContexts') {
         return;
       }
 
-      this.$el.appendTo( this.app.$inactiveContexts );
-
       if (this.position === 'center') {
-        replacementPane = this.findCenterPaneReplacement();
-        this.app.innerLayout.destroy();
-        this.app.innerLayout = false;
+        this.finishCenterPaneRemoval();
+      } else {
+        this.app.innerLayout.close(this.position); // jQuery event calls finishOtherPaneRemoval when done
+      }
+    },
+
+    // destroy the layout and recreate it, removing the center and repositioning the rest as best you can
+    finishCenterPaneRemoval: function finishCenterPaneRemoval () {
+      var self = this,
+          replacementPane = this.findCenterPaneReplacement();
+
+      // animating a pane with the Layout plugin is impossible.
+      // it won't allow you to remove center panes and keep the layout intact,
+      // so this is the next best thing
+      this.$el.fadeOut(400, function () {
+        var activePanePositions = _.chain(self.app.innerLayout.panes)
+                            // return position for existent panes, undefined for nonexistent panes
+                            .map(function (val, key, list) { if (!!list[key]) { return key; }})
+                             // remove 'center' and pane to be switched
+                            .difference(['center', replacementPane && replacementPane.position ])
+                            .compact() // get rid of undefined's
+                            .value();
+
+        var activePanes = _.pick(self.app.innerLayout.panes, activePanePositions);
+
+        // layouts without centers need to be destroyed
+        self.app.innerLayout.destroy();
+        self.app.innerLayout = false;
+
+        // move current center pane out
+        $(this).appendTo( self.app.$inactiveContexts );
 
         if (replacementPane) {
-          replacementPane.trigger('takeCenterPane');
-          this.app.innerLayout = this.app.$contextsPanes.layout(innerLayoutConfig);
-        } else {
-          this.app.$contextsPanes.removeClass('active');
+          replacementPane.$el.trigger('takeCenterPane');
+
+          // move each non-center pane out
+          _.each(activePanes, function ($el, position) {
+            $el.appendTo(self.app.$inactiveContexts);
+          });
+
+          // reconstruct layout with only the new, replacement center pane inside
+          self.app.innerLayout = self.app.$contextsPanes.layout(innerLayoutConfig);
+
+          // re-add all non-center panes to the layout with their previous sizes
+          _.each(activePanes, function ($el, position) {
+            self.setPaneSize(position);
+            $el.appendTo(self.app.$contextsPanes);
+            self.app.innerLayout.addPane(position);
+          });
+
+        } else { // center pane was the only pane left
+          self.app.$contextsPanes.removeClass('active');
         }
 
-      } else {
-        this.app.innerLayout.removePane(this.position);
-      }
+        self.savePanePositions();
+        self.model.trigger('change:inactive');
+      });
 
-      // destroy the layout and recreate it, removing the center and repositioning the rest as best you can
+    },
 
-      this.savePaneOrder();
+    // called when jQuery UI Layout plugin issues a callback with a jQuery event, 'paneClose'
+    finishOtherPaneRemoval: function finishOtherPaneRemoval (e) {
+      this.app.innerLayout.removePane(this.position);
+      this.$el.appendTo( this.app.$inactiveContexts );
+      this.savePanePositions();
       this.model.trigger('change:inactive');
     },
 

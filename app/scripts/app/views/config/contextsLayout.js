@@ -23,7 +23,15 @@ function ($) {
       , autoResize:              true        // IF size is 'auto' or a percentage, then recalc 'pixel size' whenever the layout resizes
       , autoReopen:              true        // IF a pane was auto-closed due to noRoom, reopen it when there is room? False = leave it closed
       , initClosed:           false
-      , onhide: function (paneType, el, state, options, layoutName) { console.log('im hiding!', paneType, state.size) }
+      , onclose_end: function (paneType, $el, state, options, layoutName) {
+          var resizeEvent = jQuery.Event("paneClose");
+          $el.trigger(resizeEvent, [paneType]);
+          return false; // prevents error from occurring because the $el is removed in the app code during trigger
+        }
+      , onresize: function (paneType, $el, state, options, layoutName) {
+          var resizeEvent = jQuery.Event("paneResize");
+          $el.trigger(resizeEvent, [paneType, state.size]);
+        }
       , north: {
       }
       , south: {

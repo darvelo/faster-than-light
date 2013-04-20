@@ -25,6 +25,7 @@ function (Backbone, appConfig, ContextPaneView, _) {
         this.render();
       }
 
+      this.listenTo(this.collection, 'pane:resize', this.savePaneSizes);
       this.listenTo(this.collection, 'destroy', this.render);
     },
 
@@ -62,6 +63,32 @@ function (Backbone, appConfig, ContextPaneView, _) {
       return this;
     },
 
+    savePaneSizes: function savePaneSizes (panePosition, paneSize) {
+      var self = this,
+          paneSizes = this.app.user.get('paneSizes') || {};
+
+      // center doesn't have a size
+      if (panePosition === 'center') {
+        return;
+      }
+
+      // set local user model
+      if (_.isNumber(paneSize)) {
+        paneSizes[panePosition] = paneSize;
+        this.app.user.set('paneSizes', paneSizes);
+      }
+
+      // if not waiting on other model resizes,
+      // kick off waiting process, and when done, save user model
+      if (!this.waitingOnResizes) {
+        this.waitingOnResizes = true;
+
+        setTimeout(function () {
+          self.app.user.save();
+          self.waitingOnResizes = false;
+        }, 100);
+      }
+    },
 
   });
 
