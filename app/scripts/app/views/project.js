@@ -12,14 +12,10 @@ function (Backbone, template, _) {
 
     template: template,
 
-    events: {
-      // 'takeCenterPane': 'takeCenterPane',
-    },
+    events: {},
 
     initialize: function initialize () {
       this.app = this.options.app;
-      this.position = false;
-
 
 
 

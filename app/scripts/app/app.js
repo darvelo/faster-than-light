@@ -30,19 +30,25 @@ function(AppConfig, ApiManager, User, ContextsCollection, ProjectsCollection, Ta
     }
 
     if (window.bootstrap && window.bootstrap.projects) {
-      this.collections.projects = new ProjectsCollection(window.bootstrap.projects);
+      this.collections.projects = new ProjectsCollection(window.bootstrap.projects, {
+                                        comparatorItem: 'id',
+                                      });
     }
 
     if (window.bootstrap && window.bootstrap.auxProjects) {
       if (this.collections.projects) {
         this.collections.projects.add(window.bootstrap.auxProjects);
       } else {
-        this.collections.projects = new ProjectsCollection(window.bootstrap.projects);
+        this.collections.projects = new ProjectsCollection(window.bootstrap.projects, {
+                                          comparatorItem: 'id',
+                                        });
       }
     }
 
     if (window.bootstrap && window.bootstrap.tasks) {
-      this.collections.tasks = new TasksCollection(window.bootstrap.tasks);
+      this.collections.tasks = new TasksCollection(window.bootstrap.tasks, {
+                                      comparatorItem: 'id',
+                                    });
     }
 
     this.views.app = new AppView();

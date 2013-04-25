@@ -8,10 +8,11 @@ block append top-script
 
 block main
   form(action='/signup', method='post')
-    p: input(type='text', placeholder='Username')
-    p: input(type='password', placeholder='Password')
-    p: input(type='password', placeholder='Password confirmation')
-    p: input(type='submit', placeholder='Signup')
+    fieldset
+      p: input(type='text', placeholder='Username')
+      p: input(type='password', placeholder='Password')
+      p: input(type='password', placeholder='Password confirmation')
+      p: input(type='submit', placeholder='Signup')
 
 
 block append bottom-script

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ $1 == "sublime" ]]; then
+  PROCIDS=`pgrep -l -f nvm_bin_alias | awk '{print $1}'`
+else
+  PROCIDS=`pgrep -l -f grunt | awk '{print $1}'`
+fi
+
+if [[ -n $PROCIDS ]]; then
+  echo 'killing:'
+
+  if [[ $1 == "sublime" ]]; then
+    pgrep -l -f  nvm_bin_alias | awk '{$1="";print $0}'
+  else
+    pgrep -l -f grunt | awk '{$1="";print $0}'
+  fi
+
+  echo pids $PROCIDS
+  kill $PROCIDS &>/dev/null
+fi

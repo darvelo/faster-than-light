@@ -30,8 +30,13 @@ app.pages.use(app);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+if (process.env.SUBLIME) {
+  app.use(express.logger('short'));
+} else if (silent) {
+  app.use(express.logger('dev'));
+}
+
 app.use(express.favicon());
-silent || app.use(express.logger('dev'));
 app.use(express.cookieParser(/* 'some secret key to sign cookies' */ 'secretkey' ));
 // app.use(express.session());
 app.use(express.compress());
@@ -163,7 +168,7 @@ app.get('/', function(req, res) {
 //app.get('/api/contexts', app.api.contexts.getAll);
 app.get('/api/contexts', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.getAll);
 app.get('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.oneById);
-app.get('/api/batch/context/:id', app.api.contexts.getProjectsByContext);
+app.get('/api/batch/context/:id', app.api.contexts.getAssociatedData);
 app.post('/api/contexts/:id', app.api.contexts.postContext);
 
 app.put('/api/users/:id', app.api.users.putUser);

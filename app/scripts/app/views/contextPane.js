@@ -3,12 +3,12 @@ define([
   'core/config',
   'views/config/contextsLayout',
   'collections/projects',
-  'views/project',
+  'views/lists/projects',
   'JST/contextPane',
   'underscore'
 ],
 
-function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectView, template, _) {
+function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectsView, template, _) {
   'use strict';
 
   var ContextPane = Backbone.View.extend({
@@ -66,12 +66,9 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
       return this;
     },
 
-    renderProjects: function renderProjects () {
-      this.model.projects.each(function (project) {
-        var projectView = new ProjectView({ app: this.app, model: project });
-
-        this.$el.append(projectView.render().el);
-      }, this);
+    renderContent: function renderContent () {
+      var projectsView = new ProjectsView({ app: this.app, collection: this.model.projects });
+      this.$el.append(projectsView.render().el);
     },
 
     useBootstrap: function useBootstrap () {
@@ -227,7 +224,7 @@ function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectVie
         .addClass(this.className);
 
       this.render();
-      this.renderProjects();
+      this.renderContent();
       this.$el.appendTo(this.app.$contextsPanes);
 
       if (!this.app.innerLayout) { // set up center position

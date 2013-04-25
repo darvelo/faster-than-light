@@ -4,7 +4,16 @@ GRUNT=`which grunt`
 NODEMON=`which nodemon`
 
 if [[ $GRUNT && $NODEMON ]]; then
-  $NODEMON $GRUNT server
+
+  if [[ $1 == "sublime" ]]; then
+    echo "Starting from Sublime Text 2"
+    $NODEMON --debug $GRUNT --no-color server & node-inspector
+  else
+    $NODEMON --debug $GRUNT server & node-inspector
+    PROCIDS=`pgrep -l -f grunt | awk '{print $1}'`
+    kill $PROCIDS &>/dev/null
+  fi
+
 else
   echo "grunt and/or nodemon is not installed!"
 fi

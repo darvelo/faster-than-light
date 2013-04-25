@@ -9,15 +9,16 @@ function (Backbone, Task) {
   var Tasks = Backbone.Collection.extend({
     model: Task,
     url: '/api/tasks',
-    comparatorItem: 'id',
+    comparatorItem: 'order',
     resort: function () {
-      var lastIndex;
+      var lastIndex,
+          comparatorItem = this.comparatorItem;
 
       this.each(function (model) {
-        var currIndex = model.get(this.comparatorItem);
+        var currIndex = model.get(comparatorItem);
 
         if (lastIndex === currIndex) {
-          model.set(this.comparatorItem, currIndex + 1);
+          model.set(comparatorItem, currIndex + 1);
           currIndex++;
         }
 
@@ -25,8 +26,9 @@ function (Backbone, Task) {
       }, this);
     },
     comparator: function (model1, model2) {
-      var firstOrder = model1.get(this.comparatorItem),
-          secondOrder = model2.get(this.comparatorItem);
+      var comparatorItem = this.comparatorItem,
+          firstOrder = model1.get(comparatorItem),
+          secondOrder = model2.get(comparatorItem);
 
       if (firstOrder > secondOrder) {
         // first is larger

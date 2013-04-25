@@ -43,7 +43,7 @@ exports.oneById = function (req, res, next) {
   });
 };
 
-exports.getProjectsByContext = function (req, res, next) {
+exports.getAssociatedData = function (req, res, next) {
   app.db.fullMontyByContext('516efbdc2d11144827000002', req.params.id, function (err, projects, auxProjects, tasks) {
     if (err) {
       return next(err);
