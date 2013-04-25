@@ -42,13 +42,13 @@ function (Backbone, ProjectView, _) {
       }, this);
     },
 
-    teardown: function teardown () {
+    _teardown: function teardown () {
       _.each(this.subViews, function (subView, id) {
         subView.teardown();
         delete this.subViews[id];
       });
       this.remove();
-      // this.undelegateEvents(); not sure if this is necessary after remove()
+      this.undelegateEvents(); // not sure if this is necessary after remove()
     },
 
     render: function render () {

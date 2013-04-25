@@ -4,6 +4,8 @@ GRUNT=`which grunt`
 NODEMON=`which nodemon`
 
 if [[ $GRUNT && $NODEMON ]]; then
+  $GRUNT compass:server
+  $GRUNT handlebars:app
 
   if [[ $1 == "sublime" ]]; then
     echo "Starting from Sublime Text 2"
