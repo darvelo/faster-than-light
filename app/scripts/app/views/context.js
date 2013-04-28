@@ -1,14 +1,14 @@
 define([
-  'backbone',
+  'views/base',
   'collections/projects',
   'JST/lists/context',
   'underscore',
 ],
 
-function (Backbone, ProjectsCollection, template, _) {
+function (BaseView, ProjectsCollection, template, _) {
   'use strict';
 
-  var Context = Backbone.View.extend({
+  var Context = BaseView.extend({
     tagName: 'li',
     className: 'context',
 

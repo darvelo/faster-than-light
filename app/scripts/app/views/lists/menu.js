@@ -1,9 +1,9 @@
 define([
-  'backbone',
+  'views/base',
   'views/lists/menuItem'
 ],
 
-function (Backbone, ListMenuItemView) {
+function (BaseView, ListMenuItemView) {
   'use strict';
 
   var ListMenuView = Backbone.View.extend({

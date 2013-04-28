@@ -1,14 +1,14 @@
 define([
-  'backbone',
   'core/config',
+  'views/base',
   'views/contextPane',
   'underscore',
 ],
 
-function (Backbone, appConfig, ContextPaneView, _) {
+function (appConfig, BaseView, ContextPaneView, _) {
   'use strict';
 
-  var Contexts = Backbone.View.extend({
+  var Contexts = BaseView.extend({
     el: '.contextPanes',
 
     events: {},

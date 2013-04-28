@@ -1,14 +1,14 @@
 define([
-  'backbone',
   'core/config',
+  'views/base',
   'views/context',
   'underscore',
 ],
 
-function (Backbone, appConfig, ContextListItemView, _) {
+function (appConfig, BaseView, ContextListItemView, _) {
   'use strict';
 
-  var Contexts = Backbone.View.extend({
+  var Contexts = BaseView.extend({
     el: '.contexts',
 
     events: {},

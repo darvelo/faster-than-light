@@ -1,17 +1,17 @@
 define([
-  'backbone',
   'core/config',
   'JST/todos',
+  'views/base',
   'views/lists/contextPanes',
   'views/lists/contexts',
   'views/config/todosLayout',
   'underscore',
 ],
 
-function (Backbone, appConfig, template, ContextPanes, ContextList, outerLayoutConfigGen, _) {
+function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, _) {
   'use strict';
 
-  var TodosView = Backbone.View.extend({
+  var TodosView = BaseView.extend({
     el: '.todos',
 
     template: template,

@@ -1,12 +1,12 @@
 define([
-  'backbone',
+  'views/base',
   'JST/app',
 ],
 
-function(Backbone, template) {
+function (BaseView, template) {
   'use strict';
 
-  var AppView = Backbone.View.extend({
+  var AppView = BaseView.extend({
     id: 'container',
     template: template,
 

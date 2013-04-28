@@ -1,17 +1,17 @@
 define([
-  'backbone',
   'core/config',
   'views/config/contextsLayout',
   'collections/projects',
+  'views/base',
   'views/lists/projects',
   'JST/contextPane',
   'underscore'
 ],
 
-function (Backbone, appConfig, innerLayoutConfig, ProjectsCollection, ProjectsView, template, _) {
+function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, _) {
   'use strict';
 
-  var ContextPane = Backbone.View.extend({
+  var ContextPane = BaseView.extend({
     className: 'contextPane',
 
     template: template,

@@ -1,13 +1,13 @@
 define([
-  'backbone',
+  'views/base',
   'JST/project',
   'underscore',
 ],
 
-function (Backbone, template, _) {
+function (BaseView, template, _) {
   'use strict';
 
-  var ProjectView = Backbone.View.extend({
+  var ProjectView = BaseView.extend({
     className: 'project',
 
     template: template,

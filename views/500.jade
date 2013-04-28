@@ -6,3 +6,5 @@ html
     if (error)
       .error
         pre #{error.message}
+      if settings['verbose errors']
+          pre= error.stack

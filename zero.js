@@ -1,26 +1,66 @@
+'use strict';
+
 /*
  * Module Dependencies
  */
 
 var express = require('express'),
     expressValidator = require('express-validator'),
+    passport = require('passport'),
+    LocalStrategy = require('passport-local').Strategy,
     app = module.exports = express(),
     silent = 'test' === process.env.NODE_ENV,
     devMode = process.env.NODE_ENV === 'dev';
 
+var MongoStore = require('connect-mongo')(express);
+
 //app.db = require('./lib/database/sequelize');
+app.authentication = require('./lib/authentication');
 app.db = require('./lib/database/mongoose');
-app.passport = require('passport');
 app.api = require('./api');
 app.pages = require('./routes');
+
 
 // Pass Express app instance.
 // Has handles to:
 // * db          (one unified database connection)
 // * routes      (html response, defers to api for json)
 // * api routes  (json response, also used internally)
+app.authentication.use(app);
 app.api.use(app);
 app.pages.use(app);
+
+/*
+ * Passport Strategy and Authentication Methods
+ */
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    app.db.getUserByName(username, function (err, user) {
+      if (err) {
+        return done(err);
+      }
+
+      app.authentication.checkPassword(password, function (err, isValid) {
+        if (!isValid) {
+          return done(null, false, { message: 'Incorrect credentials.' }); // don't specify which credentials
+        }
+
+        return done(null, user);
+      });
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  app.db.getUserById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
 
 
 /*
@@ -38,19 +78,29 @@ if (process.env.SUBLIME) {
 
 app.use(express.favicon());
 app.use(express.cookieParser(/* 'some secret key to sign cookies' */ 'secretkey' ));
-// app.use(express.session());
+app.use(express.bodyParser());
+
+
+app.use(express.session({
+  secret: 'SECRET',
+  maxAge: new Date(Date.now() + 1209600), // two weeks, in seconds
+  store: new MongoStore({
+    mongoose_connection: app.db.mainDB.connections[0],
+  }),
+}));
+
+
+
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.compress());
 app.use(express.methodOverride());
-app.use(express.bodyParser());
-//app.use(express.csrf());
-app.use(expressValidator);
+app.use(express.csrf()); // dependent on session support
+// app.use(expressValidator);
 
 
-app.use('/api', app.api.fauxAuthenticate);
+app.use('/api', app.api.authentication.checkApiKey);
 
-
-
-console.log(app.patch);
 
 // SANITIZE AND/OR ENCODE ALL URLS, DATABASE QUERIES,
 // INPUT, and ANYTHING THAT WILL MAKE ITS WAY INTO HTML TAGS
@@ -181,7 +231,7 @@ app.post('/api/testjson', function (req, res) { console.log('json received?'); c
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
 app.get('/login', app.pages.login.get);
 app.post('/login',
-  app.passport.authenticate('local', { successRedirect: '/',
+  passport.authenticate('local', { successRedirect: '/',
                                    failureRedirect: '/login',
                                    failureFlash: true })
 );
