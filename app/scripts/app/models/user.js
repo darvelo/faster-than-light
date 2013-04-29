@@ -16,6 +16,9 @@ function (Backbone) {
       return; // return nothing if validate passes, return error on failure
     },
 
+    savePaneSettings: function savePaneSettings (argument) {
+
+    },
   });
 
   return User;

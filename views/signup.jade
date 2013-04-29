@@ -16,11 +16,8 @@ block main
       input(type='submit', placeholder='Sign Up!')
       input(type='hidden', name='_csrf', value=token)
 
-  - if (messages)
-    -if (messages.info)
-      div.messages.info #{messages.info}
-    -if (messages.error)
-      div.messages.error #{messages.error}
+  - if (locals.errors)
+    div.messages.error #{errors}
 
 
 block append bottom-script

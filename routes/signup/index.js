@@ -1,6 +1,7 @@
 'use strict';
 
-var  async = require('async');
+var async = require('async'),
+    _ = require('underscore');
 
 var app; // placeholder for app instance defined in exports.use()
 exports.use = function (appInstance) {
@@ -26,14 +27,24 @@ exports.post = function(req, res, next) {
   // req.body.xxx.yyy is POST /home/yo?xxx[yyy]=blah
 
   var username = req.body.username,
-      password = req.body.password;
+      password = req.body.password,
+      errors = [];
+
+  if (_.contains(app.reservedSlugs, username)) {
+    errors.push('Sorry, your username, "' + username + '", is reserved for our internal system.');
+  }
 
   // TODO: validate username and password, email address and all that
-  var validationResult = 1;
-  if (!validationResult) { // if fails validation
+  //       REMEMBER TO SANITIZE!
+  // errors.push(validationErrors);
+  if (username === '' || password === '') {
+    errors.push('Empty username or password.');
+  }
+
+  if (! _.isEmpty(errors)) { // if fails validation
     res.render('signup', {
       dev: process.env.NODE_ENV === 'dev',
-      errors: ['username invalid', 'password invalid', 'email invalid'], // populate with validation results
+      errors: errors, // populate with validation results
     });
 
     return;

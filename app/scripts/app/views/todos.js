@@ -17,7 +17,8 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
     template: template,
 
     events: {
-
+      'paneResize': 'triggerMenuSave',
+      'paneClose': 'triggerMenuSave',
     },
 
     initialize: function initialize (_app) {
@@ -27,10 +28,10 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
 
     render: function render () {
       var outerLayoutConfig = outerLayoutConfigGen('.contextsList', '.contextsPanes'),
-          menu = this.app.user.get('menu');
+          menu = this.app.user.get('menu') || {};
 
-      outerLayoutConfig.west__size = menu.size;
-      outerLayoutConfig.west__initClosed = menu.isClosed;
+      outerLayoutConfig.west__size = menu.size || outerLayoutConfig.west.size;
+      outerLayoutConfig.west__initClosed = menu.isClosed || outerLayoutConfig.west.initClosed;
 
       this.$el.html(template());
       this.app.$inactiveContexts = $('#inactiveContexts');
@@ -82,6 +83,10 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
         last: renderLast,
         lastContexts: _.values(lastContexts),
       };
+    },
+
+    triggerMenuSave: function triggerMenuSave () {
+      this.app.user.savePaneSettings();
     },
   });
 

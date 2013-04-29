@@ -6,15 +6,18 @@
 
 var express = require('express'),
     expressValidator = require('express-validator'),
-    passport = require('passport'),
-    LocalStrategy = require('passport-local').Strategy,
     app = module.exports = express(),
     silent = 'test' === process.env.NODE_ENV,
     devMode = process.env.NODE_ENV === 'dev';
 
-var MongoStore = require('connect-mongo')(express);
-var flash = require('connect-flash');
-
+/*
+ * Passport-related requires
+ */
+var passport = require('passport'),
+    MongoStore = require('connect-mongo')(express),
+    LocalStrategy = require('passport-local').Strategy,
+    ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
+    flash = require('connect-flash');
 
 app.api = require('./api');
 app.authentication = require('./lib/authentication');
@@ -267,9 +270,13 @@ app.post('/signup', app.pages.signup.post);
 
 app.get('/login', app.pages.login.get);
 app.post('/login',
-  passport.authenticate('local', { successReturnToOrRedirect: '/',
-                                   failureRedirect: '/login',
-                                   failureFlash: true })
+  passport.authenticate('local', {
+    // returns to page that required login, or if none, redirects home.
+    // depends on connect-ensure-login and the ensureLoggedIn() middleware on other routes.
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true,
+  })
 );
 
 app.get('/logout', function(req, res){
@@ -279,6 +286,32 @@ app.get('/logout', function(req, res){
 
 app.get(':id', app.pages.userProfile.get);
 
+/*
+ * App-specific routes handled by Backbone Router but require login
+ */
+app.get('/settings', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/blog', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/calendar', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/calendar/events', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/calendar/recurring', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/statistics', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timeline', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timeline/milestones', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timeline/failures', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timeline/successes', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timeline/achievements', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/achievements', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/reminders', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timer', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timer/:year/day/:day', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timer/:year/week/:week', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/timer/:year/month/:month', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/task/:taskId/edit', ensureLoggedIn('/login'), app.pages.home.get);
+
+
+/*
+ * Status Code pages
+ */
 app.get('/404', function(req, res, next){
   // trigger a 404 since no other middleware
   // will match /404 after this one, and we're not
@@ -298,21 +331,13 @@ app.get('/500', function(req, res, next){
   next(new Error('keyboard cat!'));
 });
 
+
+/*
+ * Check for Grunt. If no parent, we're live. Run the server.
+ */
 if (!module.parent) {
   app.listen(9000);
   silent || console.log('Express started on port 9000');
 } else {
   return app;
 }
-
-/*
-  app.get('/user', function (req, res) {
-      res.send(201, { name: 'tobi' });
-  });
-
-  app.get('/questions', function (req, res) {
-      res.send(200, 'test');
-  });
-*/
-
-

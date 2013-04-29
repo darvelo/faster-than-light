@@ -49,11 +49,21 @@ function ($) {
           }
         }
       , west: {
-          // size:         250
-         togglerLength_open:   60     // NONE - using custom togglers INSIDE west-pane
+          size:         250
+        , initClosed: false
+        , togglerLength_open:   60     // NONE - using custom togglers INSIDE west-pane
         , resizerTip_open:    'Resize West Pane'
-        ,    paneSelector:           westSelector// '.ui-layout-north'
-        ,   resizerCursor:           'w-resize'  // custom = url(myCursor.cur)
+        , paneSelector:           westSelector// '.ui-layout-north'
+        , resizerCursor:           'w-resize'  // custom = url(myCursor.cur)
+        , onclose_end: function (paneType, $el, state, options, layoutName) {
+            var closeEvent = jQuery.Event("paneClose");
+            $el.trigger(closeEvent, [paneType]);
+            return false; // prevents error from occurring because the $el is removed in the app code during trigger
+          }
+        , onresize: function (paneType, $el, state, options, layoutName) {
+            var resizeEvent = jQuery.Event("paneResize");
+            $el.trigger(resizeEvent, [paneType, state.size]);
+          }
         }
       , center: {
           paneSelector:     centerSelector //'#mainContent'      // sample: use an ID to select pane instead of a class
