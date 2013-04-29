@@ -50,7 +50,7 @@ function ($) {
         }
       , west: {
           // size:         250
-         togglerLength_open:   0     // NONE - using custom togglers INSIDE west-pane
+         togglerLength_open:   60     // NONE - using custom togglers INSIDE west-pane
         , resizerTip_open:    'Resize West Pane'
         ,    paneSelector:           westSelector// '.ui-layout-north'
         ,   resizerCursor:           'w-resize'  // custom = url(myCursor.cur)

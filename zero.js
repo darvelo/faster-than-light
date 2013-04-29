@@ -267,7 +267,7 @@ app.post('/signup', app.pages.signup.post);
 
 app.get('/login', app.pages.login.get);
 app.post('/login',
-  passport.authenticate('local', { successRedirect: '/',
+  passport.authenticate('local', { successReturnToOrRedirect: '/',
                                    failureRedirect: '/login',
                                    failureFlash: true })
 );

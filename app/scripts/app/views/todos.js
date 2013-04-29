@@ -26,7 +26,12 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
     },
 
     render: function render () {
-      var outerLayoutConfig = outerLayoutConfigGen('.contextsList', '.contextsPanes');
+      var outerLayoutConfig = outerLayoutConfigGen('.contextsList', '.contextsPanes'),
+          menu = this.app.user.get('menu');
+
+      outerLayoutConfig.west__size = menu.size;
+      outerLayoutConfig.west__initClosed = menu.isClosed;
+
       this.$el.html(template());
       this.app.$inactiveContexts = $('#inactiveContexts');
       this.app.$contextsPanes = $('.contextsPanes');

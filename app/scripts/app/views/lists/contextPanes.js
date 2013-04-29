@@ -65,6 +65,8 @@ function (appConfig, BaseView, ContextPaneView, _) {
 
     savePaneSizes: function savePaneSizes (panePosition, paneSize) {
       var self = this,
+          menu = {},
+          outerLayout = this.app.outerLayout,
           paneSizes = this.app.user.get('paneSizes') || {};
 
       // center doesn't have a size
@@ -77,6 +79,10 @@ function (appConfig, BaseView, ContextPaneView, _) {
         paneSizes[panePosition] = paneSize;
         this.app.user.set('paneSizes', paneSizes);
       }
+
+      menu.size = outerLayout.west.state.size;
+      menu.isClosed = outerLayout.west.state.isClosed;
+      this.app.user.set('menu', menu);
 
       // if not waiting on other model resizes,
       // kick off waiting process, and when done, save user model
