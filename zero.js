@@ -217,9 +217,9 @@ app.use(function(err, req, res, next){
   // we may use properties of the error object
   // here and next(err) appropriately, or if
   // we possibly recovered from the error, simply next().
-  console.error(err);
+  console.error('Server error catch-all says: ', err);
 
-  res.status(err.status || 500);
+  res.status(err.status || (err.status = 500));
 
   if (req.accepts('html')) {
     res.render('errors', { status: err.status, error: devMode ? err : false });
@@ -256,7 +256,6 @@ app.post('/api/contexts/:id', app.api.contexts.postContext);
 
 app.put('/api/users/:id', app.api.users.putUser);
 
-app.get('/api/seed', app.db.seed);
 app.get('/api/testjson', function (req, res) { console.log('json received?'); console.log(req.body); res.send(req.body); });
 app.post('/api/testjson', function (req, res) { console.log('json received?'); console.log(typeof req.body, req.body, req.body.title); res.send(req.body); });
 
