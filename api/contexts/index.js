@@ -15,10 +15,7 @@ exports.getAll = function(req, res, next) {
 
     // TODO: Validate JSON
 
-    var response = {};
-    response.other = { one: 'three' };
-    response.projects = contexts;
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(contexts));
   });
 };
 
@@ -29,17 +26,17 @@ exports.oneById = function (req, res, next) {
   // req.query.xxx.yyy is GET /home/yo?xxx[yyy]=blah
 
   // var userId = req.session.userid;
-  app.db.getContextById(req.user.id, req.params.id, function (err, contexts) {
+  app.db.getContextById(req.user.id, req.params.id, function (err, context) {
     if (err) {
       return next(err);
-    } else if (contexts.length > 1) {
+    } else if (context.length > 1) {
       return next(new Error('too many contexts found by one id'));
     }
 
     // validate here
     //
 
-    res.send(JSON.stringify(contexts));
+    res.send(JSON.stringify(context));
   });
 };
 

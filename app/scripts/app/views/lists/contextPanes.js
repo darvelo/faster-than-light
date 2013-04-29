@@ -86,7 +86,7 @@ function (appConfig, BaseView, ContextPaneView, _) {
         setTimeout(function () {
           self.app.user.save();
           self.waitingOnResizes = false;
-        }, 100);
+        }, 1000);
       }
     },
 

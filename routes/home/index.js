@@ -28,8 +28,6 @@ exports.get = function(req, res, next) {
   // req.params.xxx is same as text from route /home/:xxx/yo
   // req.query.xxx is same as GET /home/yo?xxx=blah
   // req.query.xxx.yyy is GET /home/yo?xxx[yyy]=blah
-  console.log(req.path, req.params.id, req.query);
-
   async.waterfall([
     function(fn) {
       app.db.bootstrap(req.user, fn);

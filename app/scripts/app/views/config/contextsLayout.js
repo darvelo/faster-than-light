@@ -24,8 +24,8 @@ function ($) {
       , autoReopen:              true        // IF a pane was auto-closed due to noRoom, reopen it when there is room? False = leave it closed
       , initClosed:           false
       , onclose_end: function (paneType, $el, state, options, layoutName) {
-          var resizeEvent = jQuery.Event("paneClose");
-          $el.trigger(resizeEvent, [paneType]);
+          var closeEvent = jQuery.Event("paneClose");
+          $el.trigger(closeEvent, [paneType]);
           return false; // prevents error from occurring because the $el is removed in the app code during trigger
         }
       , onresize: function (paneType, $el, state, options, layoutName) {
