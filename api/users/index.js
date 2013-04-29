@@ -8,12 +8,12 @@ exports.use = function (appInstance) {
 };
 
 exports.putUser = function(req, res, next) {
-  // TODO: Validate JSON
+  // TODO: Validate JSON from req.body
   //
 
   console.log('params', req.body, typeof req.body);
 
-  app.db.updateUser('516efbdc2d11144827000002', req.body, function(err, user) {
+  app.db.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {
       return next(err);
     }

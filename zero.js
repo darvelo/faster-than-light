@@ -13,12 +13,15 @@ var express = require('express'),
     devMode = process.env.NODE_ENV === 'dev';
 
 var MongoStore = require('connect-mongo')(express);
+var flash = require('connect-flash');
 
-//app.db = require('./lib/database/sequelize');
+
+app.api = require('./api');
 app.authentication = require('./lib/authentication');
 app.db = require('./lib/database/mongoose');
-app.api = require('./api');
+app.errors = require('./lib/errorTypes');
 app.pages = require('./routes');
+app.reservedSlugs = require('./lib/slugs');
 
 
 // Pass Express app instance.
@@ -26,21 +29,31 @@ app.pages = require('./routes');
 // * db          (one unified database connection)
 // * routes      (html response, defers to api for json)
 // * api routes  (json response, also used internally)
-app.authentication.use(app);
 app.api.use(app);
+app.authentication.use(app);
+app.db.use(app);
 app.pages.use(app);
 
 /*
  * Passport Strategy and Authentication Methods
  */
-passport.use(new LocalStrategy(
+passport.use(new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password',
+  },
   function(username, password, done) {
     app.db.getUserByName(username, function (err, user) {
       if (err) {
-        return done(err);
+        console.error('There\'s been an error in the Passport user authentication check.', err);
+        return done(null, false, { message: 'Incorrect credentials. Please try again.' });
       }
 
-      app.authentication.checkPassword(password, function (err, isValid) {
+      console.log(password, user.salt, user.hash);
+      app.authentication.checkPassword(password, user.salt, user.hash, function (err, isValid) {
+        if (err) {
+          return done(err);
+        }
+
         if (!isValid) {
           return done(null, false, { message: 'Incorrect credentials.' }); // don't specify which credentials
         }
@@ -82,13 +95,35 @@ app.use(express.bodyParser());
 
 
 app.use(express.session({
+  key: 'mysession',
   secret: 'SECRET',
-  maxAge: new Date(Date.now() + 1209600), // two weeks, in seconds
+  cookie: {
+    maxAge: null, //new Date(Date.now() + 1209600), // two weeks, in seconds
+  },
   store: new MongoStore({
     mongoose_connection: app.db.mainDB.connections[0],
   }),
 }));
+app.use(flash());
 
+
+// Session-persisted message middleware
+/*app.use(function(req, res, next){
+  var err = req.session.error
+    , msg = req.session.success;
+  delete req.session.error;
+  delete req.session.success;
+  res.locals.message = '';
+  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+  next();
+});*/
+
+// set CSRF token into res.locals to be used in Jade templates
+app.use(function(req, res, next){
+  res.locals.token = req.session._csrf;
+  next();
+});
 
 
 app.use(passport.initialize());
@@ -99,7 +134,7 @@ app.use(express.csrf()); // dependent on session support
 // app.use(expressValidator);
 
 
-app.use('/api', app.api.authentication.checkApiKey);
+app.use('/api', app.authentication.checkCredentials);
 
 
 // SANITIZE AND/OR ENCODE ALL URLS, DATABASE QUERIES,
@@ -118,7 +153,7 @@ app.enable('verbose errors');
 
 // disable them in production
 // use $ NODE_ENV=production node examples/error-pages
-if ('production' == app.settings.env) {
+if ('production' === app.settings.env) {
   app.disable('verbose errors');
 }
 
@@ -187,18 +222,18 @@ app.use(function(err, req, res, next){
   res.status(err.status || 500);
 
   if (req.accepts('html')) {
-    res.render('500', { error: devMode ? err : false });
+    res.render('errors', { status: err.status, error: devMode ? err : false });
     return;
   }
 
   // respond with json
   if (req.accepts('json')) {
-    res.send({ error: 'Server Error' });
+    res.send({ error: 'Error' + err.status });
     return;
   }
 
   // default to plain-text. send()
-  res.type('txt').send('Server Error');
+  res.type('txt').send('Error' + err.status);
 });
 
 /*
@@ -206,13 +241,11 @@ app.use(function(err, req, res, next){
  */
 
 app.get('/', function(req, res) {
-  'use strict';
-
-  // if (req.session.userId) {
+  if (req.user) {
     app.pages.home.get(req, res);
-  // } else {
-  //   res.render('index', { dev: devMode });
-  // }
+  } else {
+    res.render('index', { dev: devMode });
+  }
 });
 // app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
 //app.get('/api/contexts', app.api.contexts.getAll);
@@ -227,8 +260,12 @@ app.get('/api/seed', app.db.seed);
 app.get('/api/testjson', function (req, res) { console.log('json received?'); console.log(req.body); res.send(req.body); });
 app.post('/api/testjson', function (req, res) { console.log('json received?'); console.log(typeof req.body, req.body, req.body.title); res.send(req.body); });
 
-// app.get('/user/:id', app.profiles);
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
+
+
+app.get('/signup', app.pages.signup.get);
+app.post('/signup', app.pages.signup.post);
+
 app.get('/login', app.pages.login.get);
 app.post('/login',
   passport.authenticate('local', { successRedirect: '/',
@@ -236,6 +273,12 @@ app.post('/login',
                                    failureFlash: true })
 );
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/login');
+});
+
+app.get(':id', app.pages.userProfile.get);
 
 app.get('/404', function(req, res, next){
   // trigger a 404 since no other middleware

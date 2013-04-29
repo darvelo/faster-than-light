@@ -2,7 +2,7 @@
 html
   head
   body
-    | Error 500
+    h1 Error #{status}
     if (error)
       .error
         pre #{error.message}

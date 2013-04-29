@@ -23,7 +23,7 @@ function (BaseView, ProjectView, _) {
       this.collection.each(function (project) {
         var projectView = new ProjectView({ app: this.app, model: project });
 
-        this.$el.append(projectView.render().el);
+        this.$el.append(projectView.render().el); // TODO: avoid reflow by attaching to a node that's not part of the DOM
       }, this);
 
 /*      this._redelegateSubViewEvents({

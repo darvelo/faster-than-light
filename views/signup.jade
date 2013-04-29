@@ -1,19 +1,19 @@
 extends layout
 
 block title
-  title Login to my awesome app!
+  title Sign Up to get my awesome app!
 
 block append top-script
 
 
 block main
-  form(action='/login', method='post')
+  form(action='/signup', method='post')
     fieldset
       label(for='username') Username
         input(type='text', name='username', placeholder='Username')
       label(for='password') Password
         input(type='password', name='password', placeholder='Password')
-      input(type='submit', placeholder='Log In')
+      input(type='submit', placeholder='Sign Up!')
       input(type='hidden', name='_csrf', value=token)
 
   - if (messages)
@@ -21,6 +21,7 @@ block main
       div.messages.info #{messages.info}
     -if (messages.error)
       div.messages.error #{messages.error}
+
 
 block append bottom-script
 

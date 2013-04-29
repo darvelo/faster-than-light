@@ -8,7 +8,7 @@ exports.use = function (appInstance) {
 };
 
 // from grunt-contrib-livereload
-var getSnippet = function () {
+function getSnippet () {
   /*jshint quotmark:false */
   var port = app.get('livereload');
 
@@ -21,7 +21,7 @@ var getSnippet = function () {
     ""
   ].join('\n');
   return snippet;
-};
+}
 
 exports.get = function(req, res, next) {
   // req.path is actual path
@@ -32,10 +32,10 @@ exports.get = function(req, res, next) {
 
   async.waterfall([
     function(fn) {
-      app.db.bootstrap('dave', fn); // TODO: change this to username using sessions and authentication
+      app.db.bootstrap(req.user, fn);
     },
     function(bootstrap, fn) {
-      // console.log('bootstrap is', bootstrap);
+      bootstrap.csrf = res.locals.token;
 
       res.render('app',
         {
@@ -64,31 +64,4 @@ exports.get = function(req, res, next) {
 
     res.send(html);
   });
-
-  // app.db.getContexts(function(err, contexts) {
-  //   if (err) {
-  //     console.error(err);
-  //     return next(err);
-  //   }
-
-  //   res.render('index', {
-  //     dev: process.env.NODE_ENV === 'dev',
-  //     // regex protects against script injection attacks
-  //     dataBootstrap: 'var bootstrap = ' + JSON.stringify(contexts).replace(/</g, '&lt;') + ';'
-
-  //   }, function(err, html) {
-  //     if (err) {
-  //       console.error(err);
-  //       return next(err);
-  //     }
-
-  //     if (process.env.NODE_ENV === 'dev') {
-  //       html = html.replace(/<\/body>/, function (w) {
-  //         return getSnippet() + w;
-  //       });
-  //     }
-
-  //     res.send(html);
-  //   });
-  // });
 };

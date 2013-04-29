@@ -9,6 +9,10 @@ exports.use = function (appInstance) {
 
 exports.get = function(req, res) {
   res.render('login', {
-      dev: process.env.NODE_ENV === 'dev',
+    dev: process.env.NODE_ENV === 'dev',
+    messages: {
+      error: req.flash('error'),
+      info: req.flash('info'),
+    },
   });
 };

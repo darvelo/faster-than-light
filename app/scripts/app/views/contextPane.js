@@ -68,7 +68,7 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
 
     renderContent: function renderContent () {
       var projectsView = new ProjectsView({ app: this.app, collection: this.model.projects });
-      this.$el.append(projectsView.render().el);
+      this.$el.append(projectsView.render().el);  // TODO: avoid reflow by attaching to a node that's not part of the DOM
     },
 
     useBootstrap: function useBootstrap () {
@@ -96,25 +96,22 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
 
       tempCollection.parse = function parse (response) { return response.projects; };
 
-      tempCollection.fetch({
-        success: function fetchSuccess (collection, response, options) {
-          console.log(collection, response, options);
-          ownProjects = response.projects; // the parse() method in the Context model's ProjectCollection automatically merges with this subset
-          auxProjects = response.auxProjects;
+      tempCollection.fetch().done(function (response, textStatus, jqXHR) {
+        ownProjects = response.projects; // the parse() method in the Context model's ProjectCollection automatically merges with this subset
+        auxProjects = response.auxProjects;
 
-          allProjects.set( ownProjects.concat(auxProjects), { remove: false });
-          allTasks.set( response.tasks, { remove: false });
+        allProjects.set( ownProjects.concat(auxProjects), { remove: false });
+        allTasks.set( response.tasks, { remove: false });
 
-          ownProjects = []; // clear to populate with project references from global ProjectsCollection
-          tempCollection.each(function (project) {
-            var projectId = project.get('id');
+        ownProjects = []; // clear to populate with project references from global ProjectsCollection
+        tempCollection.each(function (project) {
+          var projectId = project.get('id');
 
-            ownProjects.push( self.app.collections.projects.get(projectId) );
-          });
+          ownProjects.push( self.app.collections.projects.get(projectId) );
+        });
 
-          self.model.projects.reset(ownProjects);
-          callback.call(self);
-        },
+        self.model.projects.reset(ownProjects);
+        callback.call(self);
       });
 
     },

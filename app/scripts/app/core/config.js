@@ -1,27 +1,32 @@
 define([
   'backbone',
+  'underscore',
 ],
 
-function (Backbone) {
+function (Backbone, _) {
   'use strict';
 
-  // Backbone.sync = function(method, model, options) {
-  //   options || (options = {});
+  var oldSync = Backbone.sync,
+      csrfToken = window.bootstrap.csrf;
 
-  //   switch (method) {
-  //     case 'create':
-  //     break;
+  if (csrfToken) {
+    // have to rewrite Backbone.sync with Anti-CSRF token provided on bootstrap
+    Backbone.sync = function(method, model, options) {
+      options = options || {};
 
-  //     case 'update':
-  //     break;
+      var oldBeforeSend = options.beforeSend || function () {};
 
-  //     case 'delete':
-  //     break;
+      var newOptions = _.extend(options, {
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+          return oldBeforeSend(xhr);
+        },
+      });
 
-  //     case 'read':
-  //     break;
-  //   }
-  // };
+      return oldSync(method, model, newOptions);
+    };
+
+  }
 
   return {
     paneOrder: ['center', 'south', 'west', 'north', 'east'],

@@ -3,6 +3,7 @@ dist
 .tmp
 .sass-cache
 app/components
+app/scripts/app/templates/*
 *.sublime-project
 *.sublime-workspace
 count-lines.sh
