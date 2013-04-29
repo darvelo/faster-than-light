@@ -8,14 +8,18 @@ exports.use = function (appInstance) {
   app = appInstance;
 };
 
-exports.get = function(req, res, next) {
+function render (res, errors, info) {
   res.render('signup', {
     dev: process.env.NODE_ENV === 'dev',
     messages: {
-      error: req.flash('error'),
-      info: req.flash('info'),
-    },
+      errors: errors,
+      info: info,
+    }
   });
+}
+
+exports.get = function(req, res) {
+  return render(res, req.flash('error'), req.flash('info'));
 };
 
 exports.post = function(req, res, next) {
@@ -28,7 +32,7 @@ exports.post = function(req, res, next) {
 
   var username = req.body.username,
       password = req.body.password,
-      errors = [];
+      errors = []; // populate with validation results if failed
 
   if (_.contains(app.reservedSlugs, username)) {
     errors.push('Sorry, your username, "' + username + '", is reserved for our internal system.');
@@ -42,23 +46,13 @@ exports.post = function(req, res, next) {
   }
 
   if (! _.isEmpty(errors)) { // if fails validation
-    res.render('signup', {
-      dev: process.env.NODE_ENV === 'dev',
-      errors: errors, // populate with validation results
-    });
-
-    return;
+    return render(res, errors);
   }
 
   // seed the database with the new user and all their boilerplate config, including example projects/tasks, etc.
   app.db.seed(username, password, function (err, results) {
     if (err instanceof app.errors.UserExists) {
-      res.render('signup', {
-        dev: process.env.NODE_ENV === 'dev',
-        errors: err.message,
-      });
-
-      return;
+      return render(res, err.message);
     } else if (err) {
       return next(err);
     }

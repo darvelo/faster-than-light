@@ -17,7 +17,9 @@ block main
       input(type='hidden', name='_csrf', value=token)
 
   - if (locals.errors)
-    div.messages.error #{errors}
+    div.messages.error #{locals.errors}
+  - if (locals.info)
+    div.messages.info #{locals.info}
 
 
 block append bottom-script
