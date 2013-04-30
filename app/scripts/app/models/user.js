@@ -56,7 +56,7 @@ function (Backbone, _) {
       // if not waiting on other model resizes,
       // kick off waiting process, and when done, save user model.
       // this assures we get the settings after animations have settled down
-      // or if multiple calls were issued, because closing a pane also triggers a resize event
+      // or if multiple calls were issued, because a 'closing pane' event also triggers resize events
       if (!this.waitingForOthers) {
         this.waitingForOthers = true;
 

@@ -30,6 +30,8 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
       var outerLayoutConfig = outerLayoutConfigGen('.contextsList', '.contextsPanes'),
           menu = this.app.user.get('menu') || {};
 
+      // set up layout with last user settings if they exist.
+      // this needs to be done before initializing the layout with $el.layout(settings)
       outerLayoutConfig.west__size = menu.size || outerLayoutConfig.west.size;
       outerLayoutConfig.west__initClosed = menu.isClosed || outerLayoutConfig.west.initClosed;
 

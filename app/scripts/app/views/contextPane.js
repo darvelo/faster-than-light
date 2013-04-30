@@ -155,7 +155,6 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
 
     publishPaneResize: function publishPaneResize (e, paneType, paneSize) {
       this.app.user.saveLayoutSettings();
-      // this.model.trigger('pane:resize', paneType, paneSize);
     },
 
     setPaneSize: function setPaneSize (position) {
@@ -204,7 +203,6 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
       }
 
       this.app.$contextsPanes.addClass('active');
-      // this.savePanePositions();
       this.app.user.saveLayoutSettings();
       this.model.trigger('change:active');
     },
@@ -270,7 +268,6 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
           self.app.$contextsPanes.removeClass('active');
         }
 
-        // self.savePanePositions();
         self.app.user.saveLayoutSettings();
         self.model.trigger('change:inactive');
       });
@@ -281,7 +278,6 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
     finishOtherPaneRemoval: function finishOtherPaneRemoval (e) {
       this.app.innerLayout.removePane(this.position);
       this.$el.appendTo( this.app.$inactiveContexts );
-      // this.savePanePositions();
       this.app.user.saveLayoutSettings();
       this.model.trigger('change:inactive');
     },
