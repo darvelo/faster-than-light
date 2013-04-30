@@ -23,6 +23,7 @@ function(AppConfig, ApiManager, User, ContextsCollection, ProjectsCollection, Ta
 
     if (window.bootstrap && window.bootstrap.user) {
       this.user = new User(window.bootstrap.user);
+      this.user.app = this;
     }
 
     if (window.bootstrap && window.bootstrap.contexts) {
@@ -61,6 +62,7 @@ function(AppConfig, ApiManager, User, ContextsCollection, ProjectsCollection, Ta
     this.views.todos.render();
 
     this.booting = false;
+    // window.bootstrap = null;
 
     // this.collections.lists = new TaskLists(); /// sort original tasklist by id, others are sorted by 'order'
     // this.views.listMenu = new ListMenuView({ collection: this.collections.lists });

@@ -86,7 +86,7 @@ function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutC
     },
 
     triggerMenuSave: function triggerMenuSave () {
-      this.app.user.savePaneSettings();
+      this.app.user.saveLayoutSettings();
     },
   });
 

@@ -154,36 +154,8 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
     },
 
     publishPaneResize: function publishPaneResize (e, paneType, paneSize) {
-      this.model.trigger('pane:resize', paneType, paneSize);
-    },
-
-    savePanePositions: function savePanePositions () {
-      if (this.app.booting) {
-        return;
-      }
-
-      var panes = this.app.innerLayout.panes,
-          panePositions = {};
-
-      // don't save sizes because nothing is open/closed
-      if (!panes) {
-        this.app.user.set('lastContexts', panePositions);
-        this.app.user.save();
-        return;
-      }
-
-      // get sizes of open panes
-      _.each(appConfig.paneOrder, function (position) {
-        if (panes[position]) {
-          panePositions[position] = panes[position].data('id');
-          return;
-        }
-
-        delete panePositions[position];
-      });
-
-      this.app.user.set('lastContexts', panePositions);
-      this.app.user.save();
+      this.app.user.saveLayoutSettings();
+      // this.model.trigger('pane:resize', paneType, paneSize);
     },
 
     setPaneSize: function setPaneSize (position) {
@@ -232,7 +204,8 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
       }
 
       this.app.$contextsPanes.addClass('active');
-      this.savePanePositions();
+      // this.savePanePositions();
+      this.app.user.saveLayoutSettings();
       this.model.trigger('change:active');
     },
 
@@ -297,7 +270,8 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
           self.app.$contextsPanes.removeClass('active');
         }
 
-        self.savePanePositions();
+        // self.savePanePositions();
+        self.app.user.saveLayoutSettings();
         self.model.trigger('change:inactive');
       });
 
@@ -307,7 +281,8 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
     finishOtherPaneRemoval: function finishOtherPaneRemoval (e) {
       this.app.innerLayout.removePane(this.position);
       this.$el.appendTo( this.app.$inactiveContexts );
-      this.savePanePositions();
+      // this.savePanePositions();
+      this.app.user.saveLayoutSettings();
       this.model.trigger('change:inactive');
     },
 
