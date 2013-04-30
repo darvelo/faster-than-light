@@ -63,7 +63,7 @@ function (Backbone, _) {
         setTimeout(function () {
           self.save();
           self.waitingForOthers = false;
-        }, 1000);
+        }, 600);
       }
     },
   });
