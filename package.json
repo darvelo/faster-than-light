@@ -24,7 +24,8 @@
     "mongoose-text-search": "0.0.2",
     "connect-mongo": "~0.3.2",
     "connect-flash": "~0.1.0",
-    "connect-ensure-login": "~0.1.0"
+    "connect-ensure-login": "~0.1.0",
+    "socket.io": "~0.9.14"
   },
   "devDependencies": {
     "grunt": "~0.4.0",

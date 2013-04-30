@@ -6,9 +6,22 @@
 
 var express = require('express'),
     expressValidator = require('express-validator'),
-    app = module.exports = express(),
+    app = express(),
     silent = 'test' === process.env.NODE_ENV,
     devMode = process.env.NODE_ENV === 'dev';
+
+var server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+  socket.on('yaya', function (data) {
+    socket.emit('yoyo', { yoyo: 'son' });
+  });
+});
 
 /*
  * Passport-related requires
@@ -333,11 +346,15 @@ app.get('/500', function(req, res, next){
 
 
 /*
- * Check for Grunt. If no parent, we're live. Run the server.
+ * Check for Grunt. If no parent, we're live. Run the socket.io server (contains express app).
+ * If we've got a parent, module.exports will give it what it needs to work.
  */
 if (!module.parent) {
-  app.listen(9000);
+  server.listen(9000);
   silent || console.log('Express started on port 9000');
-} else {
-  return app;
 }
+
+module.exports = {
+  server: server,
+  app: app,
+};

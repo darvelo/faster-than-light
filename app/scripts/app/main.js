@@ -9,6 +9,7 @@ require.config({
     underscore: '../../components/underscore/underscore',
     backbone: '../../components/backbone/backbone',
     layoutmanager: '../../components/backbone.layoutmanager/backbone.layoutmanager',
+    'socket.io': 'http://localhost:9000/socket.io/socket.io.js', //../vendor/socket.io',
     bootstrap: '../vendor/bootstrap',
     validator: '../vendor/validator',
   },
@@ -47,9 +48,19 @@ require.config({
   }
 });
 
-require(['app'], function (App) {
+require(['app', 'socket.io'], function (App, io) {
   'use strict';
 
   window.app = new App();
+  window.io = io;
+
+  window.socket = io.connect('http://localhost:9000');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+  socket.on('yoyo', function (data) {
+    console.log(data);
+  });
 });
 
