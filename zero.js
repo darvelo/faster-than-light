@@ -7,8 +7,8 @@
 var express = require('express'),
     expressValidator = require('express-validator'),
     app = express(),
-    silent = 'test' === process.env.NODE_ENV,
-    devMode = process.env.NODE_ENV === 'dev';
+    devMode;
+
 
 var server = require('http').createServer(app),
     io = require('socket.io').listen(server);
@@ -23,6 +23,39 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
+
+// set app environment variable
+// module.parent is a grunt-express check, argv is a grunt-nodemon check
+if (!!module.parent || process.argv[2] === 'dev') {
+  console.log('setting dev env variable');
+  app.set('env', 'dev');
+  devMode = true;
+} else {
+  console.log('setting production env variable');
+  app.set('env', 'production');
+  devMode = false;
+
+  // socket.io production settings
+  // recommended from: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
+  io.enable('browser client minification');  // send minified client
+  io.enable('browser client etag');          // apply etag caching logic based on version number
+  io.enable('browser client gzip');          // gzip the file
+  io.set('log level', 1);                    // reduce logging
+
+  // enable all transports (optional if you want flashsocket support, please note that some hosting
+  // providers do not allow you to create servers that listen on a port different than 80 or their
+  // default port)
+  io.set('transports', [
+    'websocket',
+    'flashsocket',
+    'htmlfile',
+    'xhr-polling',
+    'jsonp-polling',
+  ]);
+}
+
+
+
 /*
  * Passport-related requires
  */
@@ -32,6 +65,7 @@ var passport = require('passport'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
     flash = require('connect-flash');
 
+
 app.api = require('./api');
 app.authentication = require('./lib/authentication');
 app.db = require('./lib/database/mongoose');
@@ -39,6 +73,10 @@ app.errors = require('./lib/errorTypes');
 app.pages = require('./routes');
 app.reservedSlugs = require('./lib/slugs');
 
+if (app.get('livereloadPort')) {
+  app.liveReload = require('./lib/livereload');
+  app.liveReload.use(app);
+}
 
 // Pass Express app instance.
 // Has handles to:
@@ -101,7 +139,7 @@ app.set('view engine', 'jade');
 
 if (process.env.SUBLIME) {
   app.use(express.logger('short'));
-} else if (silent) {
+} else if (devMode) {
   app.use(express.logger('dev'));
 }
 
@@ -152,7 +190,6 @@ app.use(express.csrf()); // dependent on session support
 
 app.use('/api', app.authentication.checkCredentials);
 
-
 // SANITIZE AND/OR ENCODE ALL URLS, DATABASE QUERIES,
 // INPUT, and ANYTHING THAT WILL MAKE ITS WAY INTO HTML TAGS
 
@@ -173,6 +210,17 @@ if ('production' === app.settings.env) {
   app.disable('verbose errors');
 }
 
+// host dev files and livereload if in dev mode
+if (devMode) {
+  app.use(express.static('.tmp'));
+  app.use(express.static('app'));
+  // use livereload snippet insertion middleware if desired.
+  // have to switch from grunt-contrib-livereload to another method now...
+  // app.use(require('grunt-contrib-livereload/lib/utils').livereloadSnippet);
+} else {
+  app.use(express.static('dist'));
+}
+
 
 // "app.router" positions our routes
 // above the middleware defined below,
@@ -181,14 +229,9 @@ if ('production' === app.settings.env) {
 // on, at which point we assume it's a 404 because
 // no route has handled the request.
 
+
 app.use(app.router);
 
-if (devMode) {
-  app.use(express.static('.tmp'));
-  app.use(express.static('app'));
-} else {
-  app.use(express.static('dist'));
-}
 
 // Since this is the last non-error-handling
 // middleware use()d, we assume 404, as nothing else
@@ -346,15 +389,19 @@ app.get('/500', function(req, res, next){
 
 
 /*
- * Check for Grunt. If no parent, we're live. Run the socket.io server (contains express app).
+ * Check for Grunt. If no parent, we're live (or running in nodemon).
+ * Run the socket.io server (contains express app).
  * If we've got a parent, module.exports will give it what it needs to work.
  */
 if (!module.parent) {
   server.listen(9000);
-  silent || console.log('Express started on port 9000');
+  console.log('Express started on port 9000');
 }
 
-module.exports = {
-  server: server,
-  app: app,
+// grunt-express will handle the server start
+exports = module.exports = server;
+// delegates use() function
+exports.use = function() {
+  app.use.apply(app, arguments);
 };
+

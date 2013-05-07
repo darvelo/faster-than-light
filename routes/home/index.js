@@ -8,9 +8,9 @@ exports.use = function (appInstance) {
 };
 
 // from grunt-contrib-livereload
-function getSnippet () {
+//function getSnippet () {
   /*jshint quotmark:false */
-  var port = app.get('livereload');
+/*  var port = app.get('livereload');
 
   var snippet = [
     "<!-- livereload snippet -->",
@@ -21,7 +21,7 @@ function getSnippet () {
     ""
   ].join('\n');
   return snippet;
-}
+}*/
 
 exports.get = function(req, res, next) {
   // req.path is actual path
@@ -44,12 +44,12 @@ exports.get = function(req, res, next) {
         fn);
     },
     function(html, fn) {
-      if (app.get('env') === 'dev') {
+/*      if (app.get('env') === 'dev') {
         html = html.replace(/<\/body>/, function (w) {
           return getSnippet() + w;
         });
       }
-
+*/
       fn(null, html);
     },
   ],

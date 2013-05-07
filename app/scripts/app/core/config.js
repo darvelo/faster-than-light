@@ -7,7 +7,7 @@ function (Backbone, _) {
   'use strict';
 
   var oldSync = Backbone.sync,
-      csrfToken = window.bootstrap.csrf;
+      csrfToken = window.bootstrap && window.bootstrap.csrf;
 
   if (csrfToken) {
     // have to rewrite Backbone.sync with Anti-CSRF token provided on bootstrap
