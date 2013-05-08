@@ -7,3 +7,4 @@ app/scripts/app/templates/*
 *.sublime-project
 *.sublime-workspace
 count-lines.sh
+.nodemonignore
