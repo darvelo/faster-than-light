@@ -52,7 +52,17 @@ require(['app', 'socket.io'], function (App, io) {
   window.app = new App();
   // window.io = io;
 
-  window.socket = io.connect('http://localhost:9000');
+  var socket;
+  window.socket = socket = io.connect('http://localhost:9000');
+  socket.on('error', function (reason){
+    console.error('Unable to connect Socket.IO', reason);
+  });
+
+  socket.on('connect', function (){
+    console.info('successfully established a working connection \o/');
+  });
+
+
   socket.on('news', function (data) {
     console.log(data);
     socket.emit('my other event', { my: 'data' });

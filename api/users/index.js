@@ -11,13 +11,12 @@ exports.putUser = function(req, res, next) {
   // TODO: Validate JSON from req.body
   //
 
-  console.log('params', req.body, typeof req.body);
-
   app.db.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {
       return next(err);
     }
 
+    app.socketio.doinMaThang(JSON.stringify(user));
     res.send(JSON.stringify(user));
   });
 };

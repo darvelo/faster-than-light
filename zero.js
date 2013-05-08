@@ -1,92 +1,64 @@
 'use strict';
 
 /*
- * Module Dependencies
+ * Express Dependencies
  */
 
-var express = require('express'),
-    expressValidator = require('express-validator'),
-    app = express(),
-    devMode;
+var express = require('express');
+var expressValidator = require('express-validator');
+var app = express();
 
-
-var server = require('http').createServer(app),
-    io = require('socket.io').listen(server);
-
-io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-  socket.on('yaya', function (data) {
-    socket.emit('yoyo', { yoyo: 'son' });
-  });
-});
-
-
-// set app environment variable
-// module.parent is a grunt-express check, argv is a grunt-nodemon check
-if (!!module.parent || process.argv[2] === 'dev') {
-  console.log('setting dev env variable');
-  app.set('env', 'dev');
-  devMode = true;
-} else {
-  console.log('setting production env variable');
-  app.set('env', 'production');
-  devMode = false;
-
-  // socket.io production settings
-  // recommended from: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
-  io.enable('browser client minification');  // send minified client
-  io.enable('browser client etag');          // apply etag caching logic based on version number
-  io.enable('browser client gzip');          // gzip the file
-  io.set('log level', 1);                    // reduce logging
-
-  // enable all transports (optional if you want flashsocket support, please note that some hosting
-  // providers do not allow you to create servers that listen on a port different than 80 or their
-  // default port)
-  io.set('transports', [
-    'websocket',
-    'flashsocket',
-    'htmlfile',
-    'xhr-polling',
-    'jsonp-polling',
-  ]);
-}
-
+/*
+ * Passport-related dependencies
+ */
+var passport = require('passport');
+var MongoStore = require('connect-mongo')(express);
+var LocalStrategy = require('passport-local').Strategy;
+var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
+var flash = require('connect-flash');
 
 
 /*
- * Passport-related requires
+ * Set app settings depending on environment mode.
+ * module.parent is a grunt-express check, argv is a grunt-nodemon check
  */
-var passport = require('passport'),
-    MongoStore = require('connect-mongo')(express),
-    LocalStrategy = require('passport-local').Strategy,
-    ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
-    flash = require('connect-flash');
+if (!!module.parent || process.argv[2] === 'dev') {
+  console.log('setting dev env variable');
+  app.set('env', 'dev');
+} else {
+  console.log('setting production env variable');
+  app.set('env', 'production');
+}
 
 
+/*
+ * App setup variables
+ */
+app.sessionKey = 'zero_sess';
+app.sessionSecret = 'my session secret';
+
+/*
+ * App modules
+ */
 app.api = require('./api');
 app.authentication = require('./lib/authentication');
 app.db = require('./lib/database/mongoose');
 app.errors = require('./lib/errorTypes');
 app.pages = require('./routes');
 app.reservedSlugs = require('./lib/slugs');
+app.sessionStore = new MongoStore({ mongoose_connection: app.db.mainDB.connections[0] });
+app.socketio = require('./lib/socket.io')(app);
 
-if (app.get('livereloadPort')) {
-  app.liveReload = require('./lib/livereload');
-  app.liveReload.use(app);
-}
 
-// Pass Express app instance.
-// Has handles to:
-// * db          (one unified database connection)
-// * routes      (html response, defers to api for json)
-// * api routes  (json response, also used internally)
+// Pass Express app instance to modules.
+// Needs to be done after App modules and setup variables are established.
 app.api.use(app);
 app.authentication.use(app);
 app.db.use(app);
 app.pages.use(app);
+
+
+
 
 /*
  * Passport Strategy and Authentication Methods
@@ -139,25 +111,23 @@ app.set('view engine', 'jade');
 
 if (process.env.SUBLIME) {
   app.use(express.logger('short'));
-} else if (devMode) {
+} else if (app.get('env') === 'dev') {
   app.use(express.logger('dev'));
 }
 
 app.use(express.favicon());
-app.use(express.cookieParser(/* 'some secret key to sign cookies' */ 'secretkey' ));
+app.use(express.cookieParser(/* 'some secret key to sign cookies' */ app.sessionKey ));
 app.use(express.bodyParser());
 
-
 app.use(express.session({
-  key: 'mysession',
-  secret: 'SECRET',
+  key: app.sessionKey,
+  secret: app.sessionSecret,
   cookie: {
     maxAge: null, //new Date(Date.now() + 1209600), // two weeks, in seconds
   },
-  store: new MongoStore({
-    mongoose_connection: app.db.mainDB.connections[0],
-  }),
+  store: app.sessionStore,
 }));
+
 app.use(flash());
 
 
@@ -206,12 +176,12 @@ app.enable('verbose errors');
 
 // disable them in production
 // use $ NODE_ENV=production node examples/error-pages
-if ('production' === app.settings.env) {
+if ('production' === app.get('env')) {
   app.disable('verbose errors');
 }
 
 // host dev files and livereload if in dev mode
-if (devMode) {
+if (app.get('env') === 'dev') {
   app.use(express.static('.tmp'));
   app.use(express.static('app'));
   // use livereload snippet insertion middleware if desired.
@@ -281,7 +251,7 @@ app.use(function(err, req, res, next){
   res.status(err.status || (err.status = 500));
 
   if (req.accepts('html')) {
-    res.render('errors', { status: err.status, error: devMode ? err : false });
+    res.render('errors', { status: err.status, error: (app.get('env') === 'dev') ? err : false });
     return;
   }
 
@@ -303,7 +273,7 @@ app.get('/', function(req, res) {
   if (req.user) {
     app.pages.home.get(req, res);
   } else {
-    res.render('index', { dev: devMode });
+    res.render('index', { dev: (app.get('env') === 'dev') });
   }
 });
 // app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
@@ -324,7 +294,13 @@ app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son
 app.get('/signup', app.pages.signup.get);
 app.post('/signup', app.pages.signup.post);
 
-app.get('/login', app.pages.login.get);
+app.get('/login', function (req, res, next) {
+  if (req.user) {
+    return res.redirect('/');
+  }
+  next();
+}, app.pages.login.get);
+
 app.post('/login',
   passport.authenticate('local', {
     // returns to page that required login, or if none, redirects home.
@@ -394,12 +370,12 @@ app.get('/500', function(req, res, next){
  * If we've got a parent, module.exports will give it what it needs to work.
  */
 if (!module.parent) {
-  server.listen(9000);
+  app.socketio.server.listen(9000);
   console.log('Express started on port 9000');
 }
 
 // grunt-express will handle the server start
-exports = module.exports = server;
+exports = module.exports = app.socketio.server;
 // delegates use() function
 exports.use = function() {
   app.use.apply(app, arguments);
