@@ -1,26 +1,26 @@
 'use strict';
 
-var async = require('async'),
-    _ = require('underscore');
+var async = require('async');
+var _ = require('underscore');
+var e; // used for app.errors
 
 var app; // placeholder for app instance defined in exports.use()
 exports.use = function (appInstance) {
   app = appInstance;
+  e = app.errors;
 };
 
 function render (req, res, errors, info) {
-  console.log('reslocals', req.flash());
   res.render('signup', {
     dev: app.get('env') === 'dev',
-      errors: errors,
-    messages: {
-      info: info,
-    }
+    // errors: errors || {},
+    invalid: (errors && errors.invalid) || {},
+    info: info || {},
   });
 }
 
 exports.get = function(req, res) {
-  return render(req, res, req.flash('error'), req.flash('info'));
+  return render(req, res); //req.flash('error'), req.flash('info'));
 };
 
 exports.post = function(req, res, next) {
@@ -33,7 +33,7 @@ exports.post = function(req, res, next) {
 
   var username = req.body.username;
   var password = req.body.password;
-  var errors = new app.errors.ValidationError(); // populate with validation results if failed
+  var errors = new e.ValidationError(); // populate with validation results if failed
 
   if (_.contains(app.reservedSlugs, username)) {
     errors.add('username', 'Sorry, your username, "' + username + '", is reserved for our internal system.');
@@ -43,21 +43,20 @@ exports.post = function(req, res, next) {
   //       REMEMBER TO SANITIZE!
   // errors.push(validationErrors);
   if (username === '') {
-    errors.add('username', 'Empty username or password.');
+    errors.add('username', 'Empty username.');
   }
 
   if (password === '') {
-    errors.add('password', 'Empty password or password.');
+    errors.add('password', 'Empty password.');
   }
 
   if (errors.count()) { // if fails validation
-    console.log('usernameson', errors.invalid)
     return render(req, res, errors);
   }
 
   // seed the database with the new user and all their boilerplate config, including example projects/tasks, etc.
   app.db.seed(username, password, function (err, results) {
-    if (err instanceof app.errors.UserExists) {
+    if (err instanceof e.UserExistsError) {
       return render(req, res, errors.add('username', err.message));
     } else if (err) {
       return next(err);

@@ -10,19 +10,19 @@ block main
   form(action='/signup', method='post')
     fieldset
       label(for='username') Username
-        - if (locals.errors && locals.errors.invalid && locals.errors.invalid.username)
-          for usernameError in locals.errors.invalid.username
+        - if (locals.invalid.username)
+          for usernameError in locals.invalid.username
             div.error #{usernameError}
         input(type='text', name='username', placeholder='Username')
       label(for='password') Password
-        - if (locals.errors && locals.errors.invalid && locals.errors.invalid.password)
-          for passwordError in locals.errors.invalid.password
+        - if (locals.invalid.password)
+          for passwordError in locals.invalid.password
             div.error #{passwordError}
         input(type='password', name='password', placeholder='Password')
       input(type='submit', placeholder='Sign Up!')
       input(type='hidden', name='_csrf', value=token)
 
-  - if (locals.messages.errors)
+  - if (locals.errors)
     div.messages.error #{locals.errors}
   - if (locals.info)
     div.messages.info #{locals.info}
