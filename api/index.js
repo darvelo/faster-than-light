@@ -6,9 +6,11 @@ exports.use = function (appInstance) {
 
   exports.users.use(app);
   exports.contexts.use(app);
+  exports.bootstrap.use(app);
 };
 
 
+exports.bootstrap = require('./bootstrap');
 exports.contexts = require('./contexts');
 exports.users = require('./users');
 

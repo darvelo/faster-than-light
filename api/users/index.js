@@ -16,7 +16,7 @@ exports.putUser = function(req, res, next) {
       return next(err);
     }
 
-    app.socketio.doinMaThang(JSON.stringify(user));
+    app.socketio.broadcastUser(req.user, user);
     res.send(JSON.stringify(user));
   });
 };

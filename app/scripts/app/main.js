@@ -48,28 +48,10 @@ require.config({
 require(['app', 'socket.io'], function (App, io) {
   'use strict';
 
-  console.log('io', io);
-  window.app = new App();
-  // window.io = io;
+  var app = new App();
+  io.init(app);
 
-  var socket;
-  window.socket = socket = io.connect('http://localhost:9000');
-  socket.on('error', function (reason){
-    console.error('Unable to connect Socket.IO', reason);
-  });
-
-  socket.on('connect', function (){
-    console.info('successfully established a working connection \o/');
-  });
-
-
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
-  socket.on('yoyo', function (data) {
-    console.log(data);
-  });
-
+  window.app = app;
+  console.log('TODO: Unset window.app');
 });
 

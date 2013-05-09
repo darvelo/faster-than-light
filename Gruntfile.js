@@ -36,6 +36,10 @@ module.exports = function (grunt) {
             compass: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
                 tasks: ['compass:server'],
+                options: {
+                    // livereload: false,
+                    nospawn: true,
+                },
             },
             handlebars: {
                 files: [
@@ -534,6 +538,22 @@ module.exports = function (grunt) {
                 options: {
                     file: './node-inspector.js',
                     exec: 'node-inspector',
+                    ignoredFiles: [
+                        'README.md',
+                        'Gruntfile.js',
+                        '/.git/',
+                        '/node_modules/',
+                        '/app/',
+                        '/dist/',
+                        '/test/',
+                        '/temp/',
+                        '/.tmp',
+                        '/.sass-cache',
+                        '*.txt',
+                        '*.sublime-project',
+                        '*.sublime-workspace',
+                        '*.jade',
+                    ],
                 },
             },
         },

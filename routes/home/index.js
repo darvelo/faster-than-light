@@ -7,22 +7,6 @@ exports.use = function (appInstance) {
   app = appInstance;
 };
 
-// from grunt-contrib-livereload
-//function getSnippet () {
-  /*jshint quotmark:false */
-/*  var port = app.get('livereload');
-
-  var snippet = [
-    "<!-- livereload snippet -->",
-    "<script>document.write('<script src=\"http://'",
-    " + (location.host || 'localhost').split(':')[0]",
-    " + ':" + port + "/livereload.js?snipver=1\"><\\/script>')",
-    "</script>",
-    ""
-  ].join('\n');
-  return snippet;
-}*/
-
 exports.get = function(req, res, next) {
   // req.path is actual path
   // req.params.xxx is same as text from route /home/:xxx/yo
@@ -44,19 +28,13 @@ exports.get = function(req, res, next) {
         fn);
     },
     function(html, fn) {
-/*      if (app.get('env') === 'dev') {
-        html = html.replace(/<\/body>/, function (w) {
-          return getSnippet() + w;
-        });
-      }
-*/
       fn(null, html);
     },
   ],
 
   function(err, html) {
     if (err) {
-      console.error(err);
+      // console.error(err);
       return next(err);
     }
 

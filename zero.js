@@ -74,7 +74,6 @@ passport.use(new LocalStrategy({
         return done(null, false, { message: 'Incorrect credentials. Please try again.' });
       }
 
-      console.log(password, user.salt, user.hash);
       app.authentication.checkPassword(password, user.salt, user.hash, function (err, isValid) {
         if (err) {
           return done(err);
@@ -269,30 +268,25 @@ app.use(function(err, req, res, next){
  * Routes
  */
 
-app.get('/', function(req, res) {
+app.get('/', function(req, res, next) {
   if (req.user) {
-    app.pages.home.get(req, res);
+    app.pages.home.get(req, res, next);
   } else {
     res.render('index', { dev: (app.get('env') === 'dev') });
   }
 });
-// app.get('/api', function(req, res, next) { res.redirect('/404'); /*next(new Error('no API page'));*/ });
-//app.get('/api/contexts', app.api.contexts.getAll);
-app.get('/api/contexts', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.getAll);
-app.get('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.oneById);
+app.get('/api/bootstrap', app.api.bootstrap.get);
+app.get('/api/contexts', app.api.contexts.getAll);
+app.get('/api/contexts/:id', app.api.contexts.oneById);
 app.get('/api/batch/context/:id', app.api.contexts.getAssociatedData);
-app.post('/api/contexts/:id', app.api.contexts.postContext);
+app.post('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.postContext);
 
-app.put('/api/users/:id', app.api.users.putUser);
-
-app.get('/api/testjson', function (req, res) { console.log('json received?'); console.log(req.body); res.send(req.body); });
-app.post('/api/testjson', function (req, res) { console.log('json received?'); console.log(typeof req.body, req.body, req.body.title); res.send(req.body); });
-
+app.put('/api/users/:id', /* validation middleware */ /* app.validator.user, */ app.api.users.putUser);
 app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
 
 
 app.get('/signup', app.pages.signup.get);
-app.post('/signup', app.pages.signup.post);
+app.post('/signup', /* validation middleware */ /* app.validator.signup, */ app.pages.signup.post);
 
 app.get('/login', function (req, res, next) {
   if (req.user) {

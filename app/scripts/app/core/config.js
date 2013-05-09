@@ -1,9 +1,10 @@
 define([
   'backbone',
+  'socket.io',
   'underscore',
 ],
 
-function (Backbone, _) {
+function (Backbone, io, _) {
   'use strict';
 
   var oldSync = Backbone.sync,
@@ -15,11 +16,24 @@ function (Backbone, _) {
       options = options || {};
 
       var oldBeforeSend = options.beforeSend || function () {};
+      var oldSuccess = options.success || function () {};
 
       var newOptions = _.extend(options, {
-        beforeSend: function(xhr) {
+        beforeSend: function (xhr) {
           xhr.setRequestHeader('X-CSRF-Token', csrfToken);
           return oldBeforeSend(xhr);
+        },
+
+        success: function (data, textStatus, jqXHR) {
+          if (method !== 'read') {
+            io.socket.emit('backboneREST', {
+              url: this.url,
+              method: this.type,
+              // data: this.data, // not safe to trust data from client
+            });
+          }
+
+          return oldSuccess(data, textStatus, jqXHR);
         },
       });
 
