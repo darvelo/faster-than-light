@@ -22,8 +22,7 @@ exports.get = function(req, res, next) {
       res.render('app',
         {
           dev: app.get('env') === 'dev',
-          // regex protects against script injection attacks
-          dataBootstrap: 'var bootstrap = ' + JSON.stringify(bootstrap).replace(/</g, '&lt;') + ';',
+          dataBootstrap: 'var bootstrap = ' + JSON.stringify(bootstrap) + ';',
         },
         fn);
     },
@@ -34,7 +33,6 @@ exports.get = function(req, res, next) {
 
   function(err, html) {
     if (err) {
-      // console.error(err);
       return next(err);
     }
 

@@ -17,18 +17,3 @@ exports.get = function (req, res, next) {
     res.send(bootstrap);
   });
 };
-
-// triggered when a route needs the data,
-// rather than Express triggering the API through app.get()
-exports.routeGet = function (user, cb) {
-  app.db.bootstrap(user, function (err, bootstrap) {
-    if (err) {
-      return cb(err);
-    }
-
-    // validate bootstrap object
-
-    cb(null, bootstrap);
-  });
-
-};

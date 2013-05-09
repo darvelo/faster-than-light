@@ -40,23 +40,6 @@ exports.oneById = function (req, res, next) {
   });
 };
 
-exports.getAssociatedData = function (req, res, next) {
-  app.db.fullMontyByContext(req.user.id, req.params.id, function (err, projects, auxProjects, tasks) {
-    if (err) {
-      return next(err);
-    }
-
-    // validate here
-    //
-
-    res.send(JSON.stringify({
-      projects: projects,
-      auxProjects: auxProjects,
-      tasks: tasks,
-    }));
-  });
-};
-
 exports.postContext = function (req, res, next) {
   // // this updates the document without returning it
   // Tank.update({ _id: id }, { $set: { size: 'large' }}, callback);

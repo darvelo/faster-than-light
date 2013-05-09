@@ -272,17 +272,19 @@ app.get('/', function(req, res, next) {
   if (req.user) {
     app.pages.home.get(req, res, next);
   } else {
-    res.render('index', { dev: (app.get('env') === 'dev') });
+    res.render('index', { dev: app.get('env') === 'dev' });
   }
 });
-app.get('/api/bootstrap', app.api.bootstrap.get);
+
+app.get('/api/batch/bootstrap', app.api.batch.bootstrap.get);
+app.get('/api/batch/context/:id', app.api.batch.contexts.getAssociatedData);
+
 app.get('/api/contexts', app.api.contexts.getAll);
 app.get('/api/contexts/:id', app.api.contexts.oneById);
-app.get('/api/batch/context/:id', app.api.contexts.getAssociatedData);
 app.post('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.postContext);
 
 app.put('/api/users/:id', /* validation middleware */ /* app.validator.user, */ app.api.users.putUser);
-app.get('/scripts/*', function(req, res, next) { return next(); res.send("yo son!")});
+app.get('/scripts/*', function(req, res, next) { return next(); });
 
 
 app.get('/signup', app.pages.signup.get);
