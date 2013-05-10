@@ -1,0 +1,1 @@
+../../../../lib/errorTypes/CustomClass/index.js

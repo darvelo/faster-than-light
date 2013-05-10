@@ -10,6 +10,8 @@ require.config({
     'socket.io': 'core/socket.io-shim',
     bootstrap: '../vendor/bootstrap',
     validator: '../vendor/validator',
+    // validators: 'core/validators/index', // can't use this as modules contain module-relative requires
+    // errorTypes: 'core/errorTypes', // can't use this as modules contain module-relative requires
   },
   shim: {
     'socket-io': {
@@ -45,7 +47,7 @@ require.config({
   }
 });
 
-require(['app', 'socket.io'], function (App, io) {
+require(['app', 'socket.io', 'core/validators/index', 'core/errorTypes'], function (App, io, val, err) {
   'use strict';
 
   var app = new App();
@@ -53,5 +55,9 @@ require(['app', 'socket.io'], function (App, io) {
 
   window.app = app;
   console.log('TODO: Unset window.app');
+  console.log('TODO: Unset window.bootstrap');
+
+  window.val = val;
+  window.err = err;
 });
 
