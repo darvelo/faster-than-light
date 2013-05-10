@@ -2,7 +2,8 @@
   "name": "webapp",
   "version": "0.0.0",
   "dependencies": {
-    "backbone.layoutmanager": "git://github.com/tbranyen/backbone.layoutmanager",
+    "backbone": "~1.0.0",
+    "underscore": "~1.4.4",
     "handlebars": "~1.0.0",
     "requirejs": "~2.1.5",
     "modernizr": "~2.6.2",

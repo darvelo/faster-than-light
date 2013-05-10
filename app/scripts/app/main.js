@@ -3,7 +3,7 @@ require.config({
     jquery: '../../components/jquery/jquery',
     jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
     'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
-    handlebars: '../../components/handlebars/handlebars.runtime',
+    handlebars: '../../components/handlebars.js/handlebars.runtime',
     JST: 'templates',
     underscore: '../../components/underscore/underscore',
     backbone: '../../components/backbone/backbone',

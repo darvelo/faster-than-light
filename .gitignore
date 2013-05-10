@@ -2,7 +2,9 @@ node_modules
 dist
 .tmp
 .sass-cache
-app/components
+app/components/*
+!app/components/jquery-ui-custom
+!app/components/jquery-ui-layout
 app/scripts/app/templates/*
 *.sublime-project
 *.sublime-workspace
