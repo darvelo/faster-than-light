@@ -11,7 +11,6 @@
     "handlebars": "1.0.10",
     "jade": "~0.28.2",
     "path": "~0.4.9",
-    "validator": "~0.4.28",
     "passport": "~0.1.16",
     "passport-local": "~0.1.6",
     "async": "~0.2.6",
@@ -23,7 +22,8 @@
     "connect-ensure-login": "~0.1.0",
     "socket.io": "~0.9.14",
     "cookie": "~0.1.0",
-    "connect": "~2.7.9"
+    "connect": "~2.7.9",
+    "validator": "~1.1.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
