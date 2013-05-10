@@ -14,7 +14,7 @@ exports.get = function(req, res, next) {
   // req.query.xxx.yyy is GET /home/yo?xxx[yyy]=blah
   async.waterfall([
     function(fn) {
-      app.db.bootstrap(req.user, fn);
+      app.db.batch.bootstrap(req.user, fn);
     },
     function(bootstrap, fn) {
       bootstrap.csrf = res.locals.token;

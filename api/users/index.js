@@ -11,8 +11,9 @@ exports.putUser = function(req, res, next) {
   // TODO: Validate JSON from req.body
   //
 
-  app.db.updateUser(req.user.id, req.body, function(err, user) {
+  app.db.users.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {
+      console.log('ERRORRRRRRRRRRRR!!!!!!!!!!!!!!!!!!', err);
       return next(err);
     }
 

@@ -8,7 +8,7 @@ exports.use = function (appInstance) {
 };
 
 exports.getAll = function(req, res, next) {
-  app.db.getContexts(req.user.id, function(err, contexts) {
+  app.db.contexts.getContexts(req.user.id, function(err, contexts) {
     if (err) {
       return next(err);
     }
@@ -26,7 +26,7 @@ exports.oneById = function (req, res, next) {
   // req.query.xxx.yyy is GET /home/yo?xxx[yyy]=blah
 
   // var userId = req.session.userid;
-  app.db.getContextById(req.user.id, req.params.id, function (err, context) {
+  app.db.contexts.getContextById(req.user.id, req.params.id, function (err, context) {
     if (err) {
       return next(err);
     } else if (context.length > 1) {

@@ -68,7 +68,7 @@ passport.use(new LocalStrategy({
     passwordField: 'password',
   },
   function(username, password, done) {
-    app.db.getUserByName(username, function (err, user) {
+    app.db.users.getUserByName(username, function (err, user) {
       if (err) {
         console.error('There\'s been an error in the Passport user authentication check.', err);
         return done(null, false, { message: 'Incorrect credentials. Please try again.' });
@@ -94,7 +94,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  app.db.getUserById(id, function(err, user) {
+  app.db.users.getUserById(id, function(err, user) {
     done(err, user);
   });
 });

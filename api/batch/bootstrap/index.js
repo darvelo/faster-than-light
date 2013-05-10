@@ -7,7 +7,7 @@ exports.use = function (appInstance) {
 
 
 exports.get = function (req, res, next) {
-  app.db.bootstrap(req.user, function (err, bootstrap) {
+  app.db.batch.bootstrap(req.user, function (err, bootstrap) {
     if (err) {
       return next(err);
     }
