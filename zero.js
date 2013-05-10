@@ -245,23 +245,29 @@ app.use(function(err, req, res, next){
   // we may use properties of the error object
   // here and next(err) appropriately, or if
   // we possibly recovered from the error, simply next().
-  console.error('Server error catch-all says: ', err);
-
   res.status(err.status || (err.status = 500));
 
-  if (req.accepts('html')) {
-    res.render('errors', { status: err.status, error: (app.get('env') === 'dev') ? err : false });
-    return;
+  console.error('Server error catch-all says: ', err);
+
+  if (app.get('env') !== 'dev') {
+    var newErr = new Error('Something went wrong. Sorry!');
+    newErr.status = err.status;
+    err = newErr;
   }
 
   // respond with json
   if (req.accepts('json')) {
-    res.send({ error: 'Error' + err.status });
+    res.send({ data: err, message: err.message });
+    return;
+  }
+
+  if (req.accepts('html')) {
+    res.render('errors', { dev: app.get('env') === 'dev', data: err, message: err.message });
     return;
   }
 
   // default to plain-text. send()
-  res.type('txt').send('Error' + err.status);
+  res.type('txt').send('Error ' + err.status);
 });
 
 /*

@@ -2,9 +2,10 @@
 
 var  async = require('async');
 
-var app; // placeholder for app instance defined in exports.use()
+var e, app; // placeholder for app instance defined in exports.use()
 exports.use = function (appInstance) {
   app = appInstance;
+  e = app.errors;
 };
 
 exports.putUser = function(req, res, next) {
@@ -13,7 +14,6 @@ exports.putUser = function(req, res, next) {
 
   app.db.users.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {
-      console.log('ERRORRRRRRRRRRRR!!!!!!!!!!!!!!!!!!', err);
       return next(err);
     }
 

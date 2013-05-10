@@ -2,9 +2,9 @@
 html
   head
   body
-    h1 Error #{status}
-    if (error)
+    if (data)
+      h1 Error #{data.status}
       .error
-        pre #{error.message}
-      if settings['verbose errors']
-          pre= error.stack
+        pre #{message}
+      if (dev && settings['verbose errors'])
+          pre= data.stack
