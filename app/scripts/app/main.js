@@ -1,5 +1,6 @@
 require.config({
   paths: {
+    json2: '../vendor/json2',
     jquery: '../../components/jquery/jquery',
     jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
     'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
@@ -14,6 +15,9 @@ require.config({
     // errorTypes: 'core/errorTypes', // can't use this as modules contain module-relative requires
   },
   shim: {
+    json2: {
+      exports: 'JSON',
+    },
     'socket-io': {
       exports: 'io',
     },

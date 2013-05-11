@@ -5,7 +5,6 @@
  */
 
 var express = require('express');
-var expressValidator = require('express-validator');
 var app = express();
 
 /*

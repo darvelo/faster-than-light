@@ -4,7 +4,8 @@ html
   body
     if (data)
       h1 Error #{data.status}
-      .error
-        pre #{message}
+      if (message)
+        .error
+          pre #{message}
       if (dev && settings['verbose errors'])
           pre= data.stack

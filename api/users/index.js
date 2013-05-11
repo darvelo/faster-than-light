@@ -9,15 +9,11 @@ exports.use = function (appInstance) {
 };
 
 exports.putUser = function(req, res, next) {
-  // TODO: Validate JSON from req.body
-  //
-
   app.db.users.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {
       return next(err);
     }
 
-    app.socketio.broadcastUser(req.user, user);
     res.send(JSON.stringify(user));
   });
 };
