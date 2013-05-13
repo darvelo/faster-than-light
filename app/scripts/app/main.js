@@ -20,10 +20,6 @@ require.config({
     json2: {
       exports: 'JSON',
     },
-    jquery: {
-      deps: [],
-      exports: '$',
-    },
     jqueryui: {
       deps: [
         'jquery',
@@ -42,16 +38,10 @@ require.config({
     underscore: {
       deps: [],
       exports: '_',
-      init: function () {
-        return this._.noConflict();
-      },
     },
     backbone: {
       deps: ['jquery', 'underscore'],
       exports: 'Backbone',
-      init: function (jquery, underscore) {
-        return this.Backbone.noConflict();
-      },
     },
     bootstrap: {
       deps: ['jquery'],

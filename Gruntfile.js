@@ -33,12 +33,14 @@ module.exports = function (grunt) {
             //     files: ['test/spec/{,*/}*.coffee'],
             //     tasks: ['coffee:test']
             // },
+            options: {
+                livereload: true
+            },
             compass: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
                 tasks: ['compass:server'],
                 options: {
-                    // livereload: false,
-                    nospawn: true,
+                    livereload: false,
                 },
             },
             handlebars: {
@@ -46,36 +48,21 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/scripts/app/rawTemplates/**/*.hbs',
                 ],
                 tasks: ['handlebars:app'],
-                options: {
-                    livereload: true
-                },
             },
             scripts: {
                 files: [
                     '<%= yeoman.app %>/scripts/**/*.js',
                 ],
-                // tasks: ['noop'],
-                options: {
-                    livereload: true
-                },
             },
             css: {
                 files: [
                     '{.tmp,<%= yeoman.app %>}/styles/**/*.css',
                 ],
-                // tasks: ['noop'],
-                options: {
-                    livereload: true
-                },
             },
             images: {
                 files: [
                     '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,webp}'
                 ],
-                // tasks: ['noop'],
-                options: {
-                    livereload: true
-                },
             },
         },
         connect: {

@@ -21,7 +21,7 @@ var flash = require('connect-flash');
  * Set app settings depending on environment mode.
  * module.parent is a grunt-express check, argv is a grunt-nodemon check
  */
-if (!module.parent || process.env.NODE_ENV === 'production' || process.argv[2] === 'production') {
+if (process.env.NODE_ENV === 'production' || process.argv[2] === 'production') {
   console.log('setting production env variable');
   app.set('env', 'production');
 }
