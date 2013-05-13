@@ -54,7 +54,7 @@ module.exports = function (grunt) {
                 files: [
                     '<%= yeoman.app %>/scripts/**/*.js',
                 ],
-                tasks: ['noop'],
+                // tasks: ['noop'],
                 options: {
                     livereload: true
                 },
@@ -63,7 +63,7 @@ module.exports = function (grunt) {
                 files: [
                     '{.tmp,<%= yeoman.app %>}/styles/**/*.css',
                 ],
-                tasks: ['noop'],
+                // tasks: ['noop'],
                 options: {
                     livereload: true
                 },
@@ -72,7 +72,7 @@ module.exports = function (grunt) {
                 files: [
                     '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,webp}'
                 ],
-                tasks: ['noop'],
+                // tasks: ['noop'],
                 options: {
                     livereload: true
                 },
@@ -200,6 +200,7 @@ module.exports = function (grunt) {
                     // `name` and `out` is set by grunt-usemin
                     baseUrl: 'app/scripts/app',
                     paths: {
+                        json2: '../vendor/json2',
                         jquery: '../../components/jquery/jquery',
                         jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
                         'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
@@ -218,6 +219,10 @@ module.exports = function (grunt) {
                         validator: '../vendor/validator',
                     },
                     shim: {
+                        json2: {
+                            deps: [],
+                            exports: 'JSON',
+                        },
                         jqueryui: {
                             deps: [
                                 'jquery',
@@ -235,15 +240,20 @@ module.exports = function (grunt) {
                         },
                         underscore: {
                             deps: [],
-                            exports: '_'
+                            exports: '_',
+                            init: function () {
+                                return this._.noConflict();
+                            },
                         },
                         backbone: {
                             deps: ['jquery', 'underscore'],
-                            exports: 'Backbone'
+                            exports: 'Backbone',
+                            init: function (jquery, underscore) {
+                                return this.Backbone.noConflict();
+                            },
                         },
                         bootstrap: {
                             deps: ['jquery'],
-                            exports: 'jquery'
                         }
                     },
                     optimize: 'uglify2',

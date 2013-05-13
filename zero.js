@@ -21,10 +21,7 @@ var flash = require('connect-flash');
  * Set app settings depending on environment mode.
  * module.parent is a grunt-express check, argv is a grunt-nodemon check
  */
-if (!!module.parent || process.argv[2] === 'dev') {
-  console.log('setting dev env variable');
-  app.set('env', 'dev');
-} else {
+if (!module.parent || process.env.NODE_ENV === 'production' || process.argv[2] === 'production') {
   console.log('setting production env variable');
   app.set('env', 'production');
 }
@@ -109,7 +106,7 @@ app.set('view engine', 'jade');
 
 if (process.env.SUBLIME) {
   app.use(express.logger('short'));
-} else if (app.get('env') === 'dev') {
+} else if (app.get('env') === 'development') {
   app.use(express.logger('dev'));
 }
 
@@ -179,7 +176,7 @@ if ('production' === app.get('env')) {
 }
 
 // host dev files and livereload if in dev mode
-if (app.get('env') === 'dev') {
+if (app.get('env') === 'development') {
   app.use(express.static('.tmp'));
   app.use(express.static('app'));
   // use livereload snippet insertion middleware if desired.
@@ -248,7 +245,7 @@ app.use(function(err, req, res, next){
 
   console.error('Server error catch-all says: ', err);
 
-  if (app.get('env') !== 'dev') {
+  if (app.get('env') !== 'development') {
     var newErr = new Error('Something went wrong. Sorry!');
     newErr.status = err.status;
     err = newErr;
@@ -261,7 +258,7 @@ app.use(function(err, req, res, next){
   }
 
   if (req.accepts('html')) {
-    res.render('errors', { dev: app.get('env') === 'dev', data: err, message: err.message });
+    res.render('errors', { dev: app.get('env') === 'development', data: err, message: err.message });
     return;
   }
 
@@ -277,7 +274,7 @@ app.get('/', function(req, res, next) {
   if (req.user) {
     app.pages.home.get(req, res, next);
   } else {
-    res.render('index', { dev: app.get('env') === 'dev' });
+    res.render('index', { dev: app.get('env') === 'development' });
   }
 });
 

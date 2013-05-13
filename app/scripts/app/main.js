@@ -1,3 +1,5 @@
+'use strict';
+
 require.config({
   paths: {
     json2: '../vendor/json2',
@@ -18,8 +20,9 @@ require.config({
     json2: {
       exports: 'JSON',
     },
-    'socket-io': {
-      exports: 'io',
+    jquery: {
+      deps: [],
+      exports: '$',
     },
     jqueryui: {
       deps: [
@@ -38,22 +41,25 @@ require.config({
     },
     underscore: {
       deps: [],
-      exports: '_'
+      exports: '_',
+      init: function () {
+        return this._.noConflict();
+      },
     },
     backbone: {
       deps: ['jquery', 'underscore'],
-      exports: 'Backbone'
+      exports: 'Backbone',
+      init: function (jquery, underscore) {
+        return this.Backbone.noConflict();
+      },
     },
     bootstrap: {
       deps: ['jquery'],
-      exports: 'jquery'
-    }
+    },
   }
 });
 
 require(['app', 'socket.io', 'core/validators/index', 'core/errorTypes'], function (App, io, val, err) {
-  'use strict';
-
   var app = new App();
   io.init(app);
 

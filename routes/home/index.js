@@ -21,7 +21,7 @@ exports.get = function(req, res, next) {
 
       res.render('app',
         {
-          dev: app.get('env') === 'dev',
+          dev: app.get('env') === 'development',
           dataBootstrap: 'var bootstrap = ' + JSON.stringify(bootstrap) + ';',
         },
         fn);

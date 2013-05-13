@@ -12,7 +12,7 @@ exports.use = function (appInstance) {
 
 function render (req, res, errors, info) {
   res.render('signup', {
-    dev: app.get('env') === 'dev',
+    dev: app.get('env') === 'development',
     // errors: errors || {},
     invalid: (errors && errors.invalid) || {},
     info: info || {},

@@ -9,7 +9,7 @@ exports.use = function (appInstance) {
 
 exports.get = function(req, res) {
   res.render('login', {
-    dev: app.get('env') === 'dev',
+    dev: app.get('env') === 'development',
     messages: {
       error: req.flash('error'),
       info: req.flash('info'),
