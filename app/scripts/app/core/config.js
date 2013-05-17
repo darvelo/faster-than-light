@@ -2,10 +2,11 @@ define([
   'backbone',
   'json2',
   'socket.io',
+  'core/errorlog',
   'underscore',
 ],
 
-function (Backbone, JSON, io, _) {
+function (Backbone, JSON, io, errlog, _) {
   'use strict';
 
   var oldSync = Backbone.sync,
