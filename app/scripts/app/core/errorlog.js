@@ -10,7 +10,7 @@ function (Backbone, $, _) {
   /**
    * Error severity chart:
    *
-   *   severity 1: highest - critical error capable of taking down the application if unnoticed
+   *   severity 1: highest - fatal error, capable of taking down the application if unnoticed
    *   severity 5: lowest  - low importance, fix when there is time available
    */
 
