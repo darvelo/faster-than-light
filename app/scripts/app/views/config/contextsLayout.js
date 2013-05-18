@@ -7,6 +7,7 @@ function ($) {
 
   return {
      minSize:            20 // TESTING ONLY
+    , contentSelector:    ".projects"  // inner div to auto-size so only it scrolls, not the entire pane!
     , fxSettings: { }
     , fxName_open: "none"
     , fxSpeed_open:         0
