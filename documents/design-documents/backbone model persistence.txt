@@ -1,0 +1,48 @@
+- see if Backbone supports XHR errors to undo model changes on validation errors on the
+  server..
+  * Backbone.sync or something else?
+  * How does this fit with Backbone.Router?  -- paydirt
+- set up validate function on Backbone models. also work on Backbone save() method. it triggers an "invalid" event I might want to look into
+
+
+** can set {validate: true} on .set() for anything but appearances (validation too complicated since jquery makes the DOM change before Backbone picks it up), then use the jqXHR on .save() (like .then(), .fail(), or .always()) to check for success or failure on server-side. If I use success or error callbacks on the options to save(), I get (model, response, options) and (model, xhr, options) as arguments, respectively. Not sure about args on promises.
+
+.save() fires a "change" immediately, a "request" event just before AJAX, and "sync" event when the server returns a response. Can pass {wait: true} as an option if I'd prefer to wait for the server validation before setting attributes.
+maybe don't use .set() on the model and only use .save() with {wait:true}
+
+
+
+on socket.io message of a change elsewhere, the other clients will each ping back their lastContexts, and the server will generate a new bootstrap for each of them and send it back through the socket. all clients will need to reset Backbone.Router location and clean up modals and such. any other non-todos that are affected also need to be rerendered. a special module, bootstrapViews, will reset() each Backbone collection (tasks, projects, contexts) and kick off the rendering all over again. I'll need to extract this useful logic from the app module. I can reset the collections in this order -- tasks, projects, contexts -- then use the "reset" event on the contexts collection to kick off the rendering. this.app.booting now becomes the reset event handler (I think? might need this.app.resetting instead?).
+
+
+need to be careful with circular dependencies. when do they occur that is unacceptable? need to cancel the drop if that happens. can i use the path and projectId attributes for that? i'd like to be able to handle dependencies such that if something is removed, before it's deleted the user can view all contexts that task exists to see the dependencies. each context window will scrollTop() to the task itself using the .data() id attribute. all panes will fill up with those context windows including the task, and if more contexts including that task exist than can be displayed.. let the user know.
+
+all context panes should have methods that destroy their inner content so that they can rerender a different context in the same pane position. in other words, panes should not be associated with their context.
+
+
+changes bubble up to the top with custom events through collections from models. once it bubbles to the most relevant topmost for re-render, all changed info will be bubbled back down again. collections can have a model as a parent, models will have a collection as a parent, or collections will reference them through id to pass messages. callbacks take care of timing and scoping/context
+
+
+
+
+model change flow:
+ * Backbone validates
+   - On OK, Backbone XHR to server API
+   - On error, Backbone reverts model -- call to Backbone.router for error message
+ * API sends 200 or error
+   - On 200, Backbone sends socket.io message. Server broadcasts
+   - On error, Backbone reverts model -- call to Backbone.router for error message
+
+
+On socket.io message, collections....bb.sync()  -- does this work for all models/collections?
+
+socket.io notifies global connections of changes
+
+models -> change:appearances -> collection is notified
+          change:anything else -> model itself is notified
+
+
+store timestamp of last change in socket.io session. on client reconnect, if timestamp is diff from client, request updates for all models/collections in app.collections/models
+
+
+accordion menu
