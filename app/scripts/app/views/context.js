@@ -26,7 +26,7 @@ function (BaseView, ProjectsCollection, template, _) {
       this.listenTo(this.model, 'change:inactive', this.setInactive);
       this.listenTo(this.model, 'change:title', function (model) {
         console.log('model title changed -- listview', this.$el);
-        this.$el.find('.title').text(model.get('title'));
+        this.$('.title').text(model.get('title'));
       });
 
 
