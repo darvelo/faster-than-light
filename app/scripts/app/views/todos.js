@@ -5,10 +5,11 @@ define([
   'views/lists/contextPanes',
   'views/lists/contexts',
   'views/config/todosLayout',
+  'jquery',
   'underscore',
 ],
 
-function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, _) {
+function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, $, _) {
   'use strict';
 
   var TodosView = BaseView.extend({

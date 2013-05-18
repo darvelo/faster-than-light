@@ -1,9 +1,10 @@
 define([
   'views/base',
   'JST/app',
+  'jquery',
 ],
 
-function (BaseView, template) {
+function (BaseView, template, $) {
   'use strict';
 
   var AppView = BaseView.extend({

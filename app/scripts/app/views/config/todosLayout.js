@@ -1,8 +1,9 @@
 define([
+  'jquery',
   'jqueryui-layout',
 ],
 
-function ($) {
+function ($, $ui) {
   'use strict';
 
   return function retOptions (westSelector, centerSelector) {
@@ -56,12 +57,12 @@ function ($) {
         , paneSelector:           westSelector// '.ui-layout-north'
         , resizerCursor:           'w-resize'  // custom = url(myCursor.cur)
         , onclose_end: function (paneType, $el, state, options, layoutName) {
-            var closeEvent = jQuery.Event("paneClose");
+            var closeEvent = $.Event("paneClose");
             $el.trigger(closeEvent, [paneType]);
             return false; // prevents error from occurring because the $el is removed in the app code during trigger
           }
         , onresize: function (paneType, $el, state, options, layoutName) {
-            var resizeEvent = jQuery.Event("paneResize");
+            var resizeEvent = $.Event("paneResize");
             $el.trigger(resizeEvent, [paneType, state.size]);
           }
         }

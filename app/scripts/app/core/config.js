@@ -1,4 +1,7 @@
 define([
+  'jquery',
+  'jqueryui',
+  'jqueryui-layout',
   'backbone',
   'json2',
   'socket.io',
@@ -6,8 +9,14 @@ define([
   'underscore',
 ],
 
-function (Backbone, JSON, io, errlog, _) {
+function ($, $ui, $layout, Backbone, JSON, io, errlog, _) {
   'use strict';
+
+  // remove jQuery and $ from the global scope.
+  // all modules will use AMD to get $
+  // $.noConflict(true);
+  // Backbone.$ = $;
+  console.log('TODO: Make jQuery noConflict and Backbone.$ reference AMD jQuery');
 
   var oldSync = Backbone.sync,
       csrfToken = window.bootstrap && window.bootstrap.csrf;

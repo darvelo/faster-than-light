@@ -5,10 +5,11 @@ define([
   'views/base',
   'views/lists/projects',
   'JST/contextPane',
+  'jquery',
   'underscore'
 ],
 
-function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, _) {
+function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, $, _) {
   'use strict';
 
   var ContextPane = BaseView.extend({

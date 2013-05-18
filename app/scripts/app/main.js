@@ -20,17 +20,21 @@ require.config({
     json2: {
       exports: 'JSON',
     },
-    jqueryui: {
-      deps: [
-        'jquery',
-      ],
-    },
-    'jqueryui-layout': {
-      deps: [
-        'jquery',
-        'jqueryui',
-      ],
-    },
+    // i've turned the jqueryui and jqueryui-layout modules into AMD
+    // so they'll get the jQuery handle without it being on window.$
+    /*
+      jqueryui: {
+        deps: [
+          'jquery',
+        ],
+      },
+      'jqueryui-layout': {
+        deps: [
+          'jquery',
+          'jqueryui',
+        ],
+      },
+    */
     handlebars: {
       deps: [],
       exports: 'Handlebars'

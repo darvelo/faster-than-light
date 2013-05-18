@@ -3,6 +3,9 @@
 * Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.draggable.js, jquery.ui.sortable.js, jquery.ui.effect.js, jquery.ui.effect-drop.js, jquery.ui.effect-scale.js, jquery.ui.effect-slide.js
 * Copyright 2013 jQuery Foundation and other contributors Licensed MIT */
 
+define(['jquery'], function ($) {
+	var jQuery = $;
+
 (function( $, undefined ) {
 
 var uuid = 0,
@@ -4852,3 +4855,5 @@ $.effects.effect.slide = function( o, done ) {
 };
 
 })(jQuery);
+
+});
