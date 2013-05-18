@@ -1,9 +1,10 @@
 define([
   'backbone',
+  'core/validators/index',
   'underscore',
 ],
 
-function (Backbone, _) {
+function (Backbone, validators, _) {
   'use strict';
 
   var User = Backbone.Model.extend({
@@ -12,10 +13,7 @@ function (Backbone, _) {
 
     },
 
-    validate: function validate (attrs, options) {
-
-      return; // return nothing if validate passes, return error on failure
-    },
+    validate: validators.user,
 
     saveLayoutSettings: function savePaneSettings () {
       if (this.app.booting) {
