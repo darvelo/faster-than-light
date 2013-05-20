@@ -11,6 +11,8 @@ function (Backbone, $, _) {
    * Error severity chart:
    *
    *   severity 1: highest - fatal error, capable of taking down the application if unnoticed
+   *   severity 2: high - an unexpected event was handled, but the app isn't truly functional
+   *   severity 3: somewhat high - expected a different result but handled it
    *   severity 5: lowest  - low importance, fix when there is time available
    */
 
