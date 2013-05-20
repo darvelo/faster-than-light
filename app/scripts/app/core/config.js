@@ -9,7 +9,7 @@ define([
   'underscore',
 ],
 
-function ($, $ui, $layout, Backbone, JSON, io, errlog, _) {
+function ($, $ui, $layout, Backbone, JSON, socket, errlog, _) {
   'use strict';
 
   // remove jQuery and $ from the global scope.
@@ -37,7 +37,7 @@ function ($, $ui, $layout, Backbone, JSON, io, errlog, _) {
 
         success: function (data, textStatus, jqXHR) {
           if (method !== 'read') {
-            io.socket.emit('backboneREST', {
+            socket.emit('backboneREST', {
               url: this.url,
               method: this.type,
               // data: this.data, // not safe to trust data from client
