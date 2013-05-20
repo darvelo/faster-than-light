@@ -1,8 +1,8 @@
 define([
-
+  'underscore',
 ],
 
-function () {
+function (_) {
   'use strict';
 
   var _initialized = false;
@@ -14,49 +14,84 @@ function () {
   window.socket = socket;
   console.log('TODO: Unset window.socket');
 
-  socket.on('error', function (reason){
-    console.error('Unable to connect Socket.IO', reason);
-  });
-
-  socket.on('connect', function (){
-    console.info('successfully established a working connection \\o/');
-  });
-
-  socket.on('disconnect', function(){
-    console.log('SOCKET.IO -- DISCONNECTED');
-  });
-
-  socket.on('reconnect', function () {
-    // pull all models/collections from the server that are currently in app.collections and app.models
-    // socket.emit('fullMonty', { contexts: [openContexts] });
-    console.log('SOCKET.IO -- RECONNECTING');
-  });
-
   return {
-    socket: socket,
     init: function (app) {
-      if (!app) {
-        return;
-      }
-
       if (_initialized) {
         return socket;
       }
 
-      socket.on('fullMonty', function (data) {
-        app.collections.contexts.set(data.contexts);
-        app.collections.projects.set(data.projects);
-        app.collections.tasks.set(data.tasks);
-        app.user.set(data.user);
+      socket.on('error', function (reason){
+        console.error('Unable to connect Socket.IO', reason);
       });
 
-      socket.on('user', function (user) {
+      socket.on('connect', function (){
+        console.info('successfully established a working connection \\o/');
+      });
+
+      socket.on('disconnect', function(){
+        // show some kind of error and halt all app activity
+        // maybe like app.navi
+        console.log('SOCKET.IO -- DISCONNECTED');
+      });
+
+
+
+      socket.on('reconnect', function () {
+        // pull all models/collections from the server that are currently in app.collections and app.models
+        // socket.emit('fullMonty', { contexts: [openContexts] });
+        console.log('SOCKET.IO -- RECONNECTED');
+        var lastContexts = _.values(app.user.get('lastContexts'));
+
+        if (_.isEmpty(lastContexts)) {
+          console.log('lastcontexts empty');
+          return app.resetData('empty');
+        }
+
+        socket.emit('fullMonty', lastContexts);
+      });
+      socket.on('dataChange', function () {
+        console.log('socket.io says there was a data change. asking for lastContexts fullMonty');
+        var lastContexts = _.values(app.user.get('lastContexts'));
+
+        if (_.isEmpty(lastContexts)) {
+          return app.resetData('empty');
+        }
+
+        socket.emit('fullMonty', lastContexts);
+      });
+
+      /*
+       * fullMonty Events
+       */
+      socket.on('fullMontyError', function (err) {
+        console.log('socket.io fullMonty Error!');
+        // err.message might be useful
+        // do something with an error modal that'll kick it off again
+      });
+      socket.on('fullMonty', function (data) {
+        console.log('receiving fullMonty', data);
+        app.resetData(data);
+      });
+
+      socket.on('getUser', function (user) {
         console.log('receiving user', user);
-        // socket.emit('my other event', { my: 'data' });
+        delete user.lastContexts;
+        delete user.paneSizes;
+        delete user.menu;
+        app.user.set(user);
       });
-      socket.on('isay', function (data) {
-        console.log('isay', data);
+
+      socket.on('getUserError', function (err) {
+        console.log('socket.io getUser Error!');
+        // err.message might be useful
+        // do something with an error modal that'll kick it off again
       });
+
+      socket.on('userChange', function () {
+        console.log('socket.io says there was a user data change. asking for latest user data');
+        socket.emit('getUser');
+      });
+
 
       _initialized = true;
       return socket;

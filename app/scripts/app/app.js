@@ -1,10 +1,10 @@
 define([
+  'socket.io',
   'core/config',
+  'core/reset',
+  'core/transitions',
   'core/api',
-  // 'views/auth',
-  // 'views/lists/menu',
-  // 'collections/tasklists',
-  // 'views/lists/task',
+  'routers/appRouter',
   'models/user',
   'collections/contexts',
   'collections/projects',
@@ -13,66 +13,85 @@ define([
   'views/todos',
 ],
 
-function(AppConfig, ApiManager, User, ContextsCollection, ProjectsCollection, TasksCollection, AppView, TodosView) {
+function(
+  io,
+  AppConfig,
+  appDataReset,
+  appTransitions,
+  ApiManager,
+  AppRouter,
+  User,
+  ContextsCollection,
+  ProjectsCollection,
+  TasksCollection,
+  AppView,
+  TodosView
+
+){
   'use strict';
 
   var App = function() {
-    if (window.bootstrap && window.bootstrap.booting) {
-      this.booting = true;
-    }
+    this.socket = io.init(this);
 
-    if (window.bootstrap && window.bootstrap.user) {
-      this.user = new User(window.bootstrap.user);
-      this.user.app = this;
-    }
+    this.booting = true;
 
-    if (window.bootstrap && window.bootstrap.contexts) {
-      this.collections.contexts = new ContextsCollection(window.bootstrap.contexts);
+    /*
+     * Set up user model
+     */
+    this.user = new User(window.bootstrap.user || []);
+    if (!window.bootstrap.user) {
+      // need user info before moving on
+      this.user.fetch({ async: false });
+    } else {
+      window.bootstrap.user = {};
     }
+    this.user.app = this;
 
-    if (window.bootstrap && window.bootstrap.projects) {
-      this.collections.projects = new ProjectsCollection(window.bootstrap.projects, {
-                                        comparatorItem: 'id',
-                                      });
-    }
 
-    if (window.bootstrap && window.bootstrap.auxProjects) {
-      if (this.collections.projects) {
-        this.collections.projects.add(window.bootstrap.auxProjects);
-      } else {
-        this.collections.projects = new ProjectsCollection(window.bootstrap.projects, {
-                                          comparatorItem: 'id',
-                                        });
-      }
-    }
+    /*
+     * Instantiate empty global collections that other,
+     * local collections will reference once populated
+     */
+    this.collections.contexts = new ContextsCollection([]);
+    this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
+    this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
 
-    if (window.bootstrap && window.bootstrap.tasks) {
-      this.collections.tasks = new TasksCollection(window.bootstrap.tasks, {
-                                      comparatorItem: 'id',
-                                    });
-    }
-
+    /*
+     * Create empty views
+     */
     this.views.app = new AppView();
     this.views.app.render();
-
-    // this.views.auth = new AuthView(this);
-    // this.views.auth.render();
 
     this.views.todos = new TodosView(this);
     this.views.todos.render();
 
+    /*
+     * Set up view transition animation functions
+     */
+    this.transition = appTransitions(this);
+
+    /*
+     * Trigger data reset and thus, Views' data population
+     */
+    this.resetData = appDataReset;
+    this.resetData(window.bootstrap || 'empty');
+
+    /*
+     * Create main router
+     */
+    this.routers.appRouter = new AppRouter({ app: this });
+    this.navigate = this.routers.appRouter.navigate;
+
+
+
+
     this.booting = false;
-    // window.bootstrap = null;
-
-    // this.collections.lists = new TaskLists(); /// sort original tasklist by id, others are sorted by 'order'
-    // this.views.listMenu = new ListMenuView({ collection: this.collections.lists });
-
-
     // this.connectApi();
   };
 
   App.prototype = {
     views: {},
+    routers: {},
     collections: {},
 
     connectApi: function() {

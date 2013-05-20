@@ -53,15 +53,14 @@ require.config({
   }
 });
 
-require(['app', 'socket.io', 'core/validators/index', 'core/errorTypes'], function (App, io, val, err) {
-  var app = new App();
-  io.init(app);
+require(['app', 'backbone', 'jquery'], function (App, Backbone, $) {
+  $(document).ready(function () {
+    var app = new App();
+    Backbone.history.start({ pushState: true });
 
-  window.app = app;
-  console.log('TODO: Unset window.app');
-  console.log('TODO: Unset window.bootstrap');
-
-  window.val = val;
-  window.err = err;
+    window.app = app;
+    console.log('TODO: Unset window.app');
+    console.log('TODO: Unset window.bootstrap');
+  });
 });
 
