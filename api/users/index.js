@@ -8,6 +8,16 @@ exports.use = function (appInstance) {
   e = app.errors;
 };
 
+exports.getMyUser = function(req, res, next) {
+  app.db.users.getUserById(req.user.id, function(err, user) {
+    if (err) {
+      return next(err);
+    }
+
+    res.send(JSON.stringify(user));
+  });
+};
+
 exports.putUser = function(req, res, next) {
   app.db.users.updateUser(req.user.id, req.body, function(err, user) {
     if (err) {

@@ -6,7 +6,7 @@ exports.use = function (appInstance) {
 };
 
 exports.getAssociatedData = function (req, res, next) {
-  app.db.batch.fullMontyByContexts(req.user.id, [req.params.id], function (err, projects, auxProjects, tasks) {
+  app.db.batch.fullMontyByContexts(req.user.id, [req.params.id], function (err, results) {
     if (err) {
       return next(err);
     }
@@ -14,10 +14,7 @@ exports.getAssociatedData = function (req, res, next) {
     // validate here
     //
 
-    res.send(JSON.stringify({
-      projects: projects,
-      auxProjects: auxProjects,
-      tasks: tasks,
-    }));
+    // results = { projects, auxProjects, tasks }
+    res.send(JSON.stringify(results));
   });
 };
