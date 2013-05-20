@@ -3,7 +3,6 @@ define([
   'core/config',
   'core/reset',
   'core/transitions',
-  'core/api',
   'routers/appRouter',
   'models/user',
   'collections/contexts',
@@ -11,6 +10,7 @@ define([
   'collections/tasks',
   'views/app',
   'views/todos',
+  'backbone',
 ],
 
 function(
@@ -18,52 +18,35 @@ function(
   AppConfig,
   appDataReset,
   appTransitions,
-  ApiManager,
   AppRouter,
   User,
   ContextsCollection,
   ProjectsCollection,
   TasksCollection,
   AppView,
-  TodosView
-
+  TodosView,
+  Backbone
 ){
   'use strict';
 
   var App = function() {
+    /*
+     * Attach socket.io socket to app instance
+     */
     this.socket = io.init(this);
 
     this.booting = true;
 
-    /*
-     * Set up user model
-     */
-    this.user = new User(window.bootstrap.user || []);
-    if (!window.bootstrap.user) {
-      // need user info before moving on
-      this.user.fetch({ async: false });
-    } else {
-      window.bootstrap.user = {};
-    }
-    this.user.app = this;
 
+    this.createUser();
+    this.instantiateCollections();
+    this.createViews();
+    this.createRouter();
 
     /*
-     * Instantiate empty global collections that other,
-     * local collections will reference once populated
+     * Easy app-wide URL navigation function
      */
-    this.collections.contexts = new ContextsCollection([]);
-    this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
-    this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
-
-    /*
-     * Create empty views
-     */
-    this.views.app = new AppView();
-    this.views.app.render();
-
-    this.views.todos = new TodosView(this);
-    this.views.todos.render();
+    this.navigate = this.routers.appRouter.navigate;
 
     /*
      * Set up view transition animation functions
@@ -71,18 +54,19 @@ function(
     this.transition = appTransitions(this);
 
     /*
-     * Trigger data reset and thus, Views' data population
+     * Set up function for app to reset collections with fresh data,
+     * triggering a reset of Backbone Views with the 'reset' event
      */
     this.resetData = appDataReset;
-    this.resetData(window.bootstrap || 'empty');
 
     /*
-     * Create main router
+     * Trigger data reset and thus, Views' data population
      */
-    this.routers.appRouter = new AppRouter({ app: this });
-    this.navigate = this.routers.appRouter.navigate;
+    this.resetData(window.bootstrap || 'empty');
 
 
+
+    Backbone.history.start({ pushState: true });
 
 
     this.booting = false;
@@ -93,8 +77,51 @@ function(
     views: {},
     routers: {},
     collections: {},
+    currentView: null,
 
-    connectApi: function() {
+    createUser: function createUser () {
+      /*
+       * Set up user model
+       */
+      this.user = new User(window.bootstrap.user || []);
+      if (!window.bootstrap.user) {
+        // need user info before moving on
+        this.user.fetch({ async: false });
+      } else {
+        window.bootstrap.user = {};
+      }
+      this.user.app = this;
+    },
+
+    instantiateCollections: function instantiateCollections () {
+      /*
+       * Instantiate empty global collections that other,
+       * local collections will reference once populated
+       */
+      this.collections.contexts = new ContextsCollection([]);
+      this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
+      this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
+    },
+
+    createViews: function createViews () {
+      /*
+       * Create empty views
+       */
+      this.views.app = new AppView();
+      this.views.app.render();
+
+      this.views.todos = new TodosView(this);
+      this.views.todos.render();
+    },
+
+    createRouter: function createRouter () {
+      /*
+       * Create main router
+       */
+      this.routers.appRouter = new AppRouter({ app: this });
+    },
+
+/*    connectApi: function() {
       var self = this;
 
       this.apiManager = new ApiManager(this);
@@ -113,6 +140,7 @@ function(
         }
 //      });
     }
+*/
   };
 
   return App;

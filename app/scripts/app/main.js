@@ -53,10 +53,9 @@ require.config({
   }
 });
 
-require(['app', 'backbone', 'jquery'], function (App, Backbone, $) {
+require(['app', 'jquery'], function (App, $) {
   $(document).ready(function () {
     var app = new App();
-    Backbone.history.start({ pushState: true });
 
     window.app = app;
     console.log('TODO: Unset window.app');
