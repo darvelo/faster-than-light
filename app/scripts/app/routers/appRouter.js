@@ -10,7 +10,7 @@ function (Backbone) {
       '': 'home',
       'todos': 'todos',
       'todos2/*splat': 'todostwo',
-      'todos2/:id': 'todostwoid',
+      'todos/view/:id': 'viewTodo',
       'post/:id': 'showPost',
     },
 
@@ -19,6 +19,7 @@ function (Backbone) {
     },
 
     home: function home () {
+      this.app.currentView = 'home';
       // var homeView = new HomeView();
       // this.appView.showView(homeView);
       console.log('MADE IT HOME!');
@@ -26,14 +27,15 @@ function (Backbone) {
     },
 
     todos: function todos () {
+      var app = this.app;
+
       console.log('MADE IT TO TODOS!');
+      this.app.transition.todos().then(function () {
+        app.currentView = 'todos';
+      });
     },
 
-    todostwo: function todostwo (splat) {
-      console.log('MADE IT TO TODOS2!', splat);
-    },
-
-    todostwoid: function todostwoid (id) {
+    viewTodo: function viewTodo (todoId) {
       console.log('MADE IT TO TODOS2 ID!', id);
     },
 
