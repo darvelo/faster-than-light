@@ -1,8 +1,9 @@
 define([
+  'core/util',
   'underscore',
 ],
 
-function (_) {
+function (util, _) {
   'use strict';
 
   var _initialized = false;
@@ -75,9 +76,9 @@ function (_) {
 
       socket.on('getUser', function (user) {
         console.log('receiving user', user);
-        delete user.lastContexts;
-        delete user.paneSizes;
-        delete user.menu;
+        // remove properties of visual settings that
+        // may have been set by another client
+        util.deleteUserProps(user);
         app.user.set(user);
       });
 

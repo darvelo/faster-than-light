@@ -1,10 +1,11 @@
 define([
   'core/errorlog',
+  'core/util',
   'backbone',
   'underscore',
 ],
 
-function (errlog, Backbone, _) {
+function (errlog, util, Backbone, _) {
   'use strict';
 
   return function reset (resetObjects) {
@@ -72,10 +73,9 @@ function (errlog, Backbone, _) {
       errlog(2, err);
       resetObjects.user = {};
     } else if (resetObjects.user) {
-      // this prevents other clients from overwriting this client's view state
-      delete resetObjects.user.lastContexts;
-      delete resetObjects.user.paneSizes;
-      delete resetObjects.user.menu;
+      // remove properties of visual settings that
+      // may have been set by another client
+      util.deleteUserProps(resetObjects.user);
     }
 
     if (resetObjects.contexts && ! _.isArray(resetObjects.contexts)) {
