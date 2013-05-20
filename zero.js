@@ -175,6 +175,16 @@ if ('production' === app.get('env')) {
   app.disable('verbose errors');
 }
 
+
+// "app.router" positions our routes
+// above the middleware defined below,
+// this means that Express will attempt
+// to match & call routes _before_ continuing
+// on, at which point we assume it's a 404 because
+// no route has handled the request.
+app.use(app.router);
+
+
 // host dev files and livereload if in dev mode
 if (app.get('env') === 'development') {
   app.use(express.static('.tmp'));
@@ -185,17 +195,6 @@ if (app.get('env') === 'development') {
 } else {
   app.use(express.static('dist'));
 }
-
-
-// "app.router" positions our routes
-// above the middleware defined below,
-// this means that Express will attempt
-// to match & call routes _before_ continuing
-// on, at which point we assume it's a 404 because
-// no route has handled the request.
-
-
-app.use(app.router);
 
 
 // Since this is the last non-error-handling
@@ -283,14 +282,15 @@ app.get('/api/batch/context/:id', app.api.batch.contexts.getAssociatedData);
 
 app.get('/api/contexts', app.api.contexts.getAll);
 app.get('/api/contexts/:id', app.api.contexts.oneById);
-app.post('/api/contexts/:id', /* validation middleware */ /* app.validator.contexts, */ app.api.contexts.postContext);
+app.post('/api/contexts/:id', app.api.contexts.postContext);
 
-app.put('/api/users/:id', /* validation middleware */ /* app.validator.user, */ app.api.users.putUser);
-app.get('/scripts/*', function(req, res, next) { return next(); });
+app.get('/api/users/me', app.api.users.getMyUser);
+app.put('/api/users/:id', app.api.users.putUser);
 
+app.get('/scripts/app/*', ensureLoggedIn('/login'), function(req, res, next) { return next(); });
 
 app.get('/signup', app.pages.signup.get);
-app.post('/signup', /* validation middleware */ /* app.validator.signup, */ app.pages.signup.post);
+app.post('/signup', app.pages.signup.post);
 
 app.get('/login', function (req, res, next) {
   if (req.user) {
@@ -319,6 +319,8 @@ app.get(':id', app.pages.userProfile.get);
 /*
  * App-specific routes handled by Backbone Router but require login
  */
+app.get('/todos', ensureLoggedIn('/login'), app.pages.home.get);
+app.get('/task/:taskId/edit', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/settings', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/blog', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/calendar', ensureLoggedIn('/login'), app.pages.home.get);
@@ -336,7 +338,6 @@ app.get('/timer', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/timer/:year/day/:day', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/timer/:year/week/:week', ensureLoggedIn('/login'), app.pages.home.get);
 app.get('/timer/:year/month/:month', ensureLoggedIn('/login'), app.pages.home.get);
-app.get('/task/:taskId/edit', ensureLoggedIn('/login'), app.pages.home.get);
 
 
 /*

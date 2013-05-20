@@ -8,7 +8,7 @@ function (Backbone, validators, _) {
   'use strict';
 
   var User = Backbone.Model.extend({
-    urlRoot: '/api/users', // used for consistency with other models
+    url: '/api/users/me',
     defaults: {
 
     },
