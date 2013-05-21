@@ -1,5 +1,4 @@
 define([
-  'core/config',
   'views/config/contextsLayout',
   'collections/projects',
   'views/base',
@@ -9,7 +8,7 @@ define([
   'underscore'
 ],
 
-function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, $, _) {
+function (innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, $, _) {
   'use strict';
 
   var ContextPane = BaseView.extend({
@@ -119,7 +118,7 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
 
     findFreePane: function findFreePane () {
       var panes = this.app.innerLayout.panes,
-          priority = appConfig.paneOrder.slice(1),
+          priority = this.app.config.paneConfig.paneOrder.slice(1),
           newPosition;
 
       newPosition = _.find(priority, function (position) {
@@ -131,7 +130,7 @@ function (appConfig, innerLayoutConfig, ProjectsCollection, BaseView, ProjectsVi
 
     findCenterPaneReplacement: function findCenterPaneReplacement () {
       var panes = this.app.innerLayout.panes,
-          priority = appConfig.replacementPaneOrder,
+          priority = this.app.config.paneConfig.replacementPaneOrder,
           replacementPosition;
 
       replacementPosition = _.find(priority, function (position) {

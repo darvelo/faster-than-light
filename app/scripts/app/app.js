@@ -17,7 +17,7 @@ define([
 
 function(
   io,
-  AppConfig,
+  appConfig,
   appDataMethods,
   appTransitions,
   appEventHandlers,
@@ -38,6 +38,12 @@ function(
      * Attach socket.io socket to app instance
      */
     this.socket = io.init(this);
+
+    /*
+     * App environment variables
+     */
+    this.config = appConfig(this);
+
 
     this.booting = true;
 

@@ -1,5 +1,4 @@
 define([
-  'core/config',
   'JST/todos',
   'views/base',
   'views/lists/contextPanes',
@@ -9,7 +8,7 @@ define([
   'underscore',
 ],
 
-function (appConfig, template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, $, _) {
+function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, $, _) {
   'use strict';
 
   var TodosView = BaseView.extend({

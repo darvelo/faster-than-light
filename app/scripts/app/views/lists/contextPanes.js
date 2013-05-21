@@ -1,11 +1,10 @@
 define([
-  'core/config',
   'views/base',
   'views/contextPane',
   'underscore',
 ],
 
-function (appConfig, BaseView, ContextPaneView, _) {
+function (BaseView, ContextPaneView, _) {
   'use strict';
 
   var Contexts = BaseView.extend({
@@ -30,7 +29,7 @@ function (appConfig, BaseView, ContextPaneView, _) {
 
     bootRender: function bootRender (renderFirst, renderLast, lastContexts) {
       // initialize the context panes in order, starting with center position -- this is critical
-      _.each(appConfig.paneOrder, function (position) {
+      _.each(this.app.config.paneConfig.paneOrder, function (position) {
         if (renderFirst[position]) {
           // ContextPanes render themselves
           var ContextPane = new ContextPaneView({

@@ -1,11 +1,10 @@
 define([
-  'core/config',
   'views/base',
   'views/context',
   'underscore',
 ],
 
-function (appConfig, BaseView, ContextListItemView, _) {
+function (BaseView, ContextListItemView, _) {
   'use strict';
 
   var Contexts = BaseView.extend({
