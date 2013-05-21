@@ -7,11 +7,11 @@ function ($, _) {
   'use strict';
 
   var views;
-  var workViewEls;
+  var actionViewEls;
 
   function todos () {
     var $todos = views.todos.$el;
-    var els = _.filter(workViewEls, function (view) { return view !== views.todos.el; });
+    var els = _.filter(actionViewEls, function (view) { return view !== views.todos.el; });
 
     $(els).fadeOut(200);
 
@@ -20,7 +20,7 @@ function ($, _) {
 
   function init (_app) {
     views = _app.views;
-    workViewEls = _.chain(views)
+    actionViewEls = _.chain(views)
                    .filter(function (view) { return view !== views.app; })
                    .map(function (view) { return view.el; })
                    .value();
