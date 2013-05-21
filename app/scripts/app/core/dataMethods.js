@@ -2,35 +2,54 @@ define([
   'core/errorlog',
   'core/util',
   'backbone',
+  'jquery',
   'underscore',
 ],
 
-function (errlog, util, Backbone, _) {
+function (errlog, util, Backbone, $, _) {
   'use strict';
 
-  return function reset (resetObjects) {
+  function empty () {
+    this.collections.tasks.reset();
+    this.collections.projects.reset();
+    // kick off the app again with a fresh pull of contexts data for
+    // things like lists that the user can click on to trigger AJAX events
+    this.collections.contexts.fetch({ reset: true });
+    return this;
+  }
+
+  function fetch () {
+    this.collections.tasks.fetch();
+    this.collections.projects.fetch();
+    this.collections.contexts.fetch();
+    this.collections.contexts.trigger('reset');
+    return this;
+  }
+
+  function bootstrap (bootstrapObject) {
     var err;
 
-    if (this === window) {
-      return;
+    /*
+     * Set up user model
+     */
+    if (!bootstrapObject || !bootstrapObject.user) {
+      // need user info before moving on
+      this.user.fetch({ async: false });
     }
 
-    if (resetObjects === 'empty') {
-      this.collections.tasks.reset();
-      this.collections.projects.reset();
-      // kick off the app again with a fresh pull of contexts data for
-      // things like lists that the user can click on to trigger AJAX events
-      this.collections.contexts.fetch({ reset: true });
-      return;
+    this.models.user.app = this;
+
+    if (!bootstrapObject || _.isArray(bootstrapObject) || ! _.isObject(bootstrapObject) || _.isEmpty(bootstrapObject)) {
+      err = new Error('Bootstrap does not exist!');
+      errlog(2, err);
+      return this.data.empty();
     }
 
-    if (resetObjects === 'fetch') {
-      this.collections.tasks.fetch();
-      this.collections.projects.fetch();
-      this.collections.contexts.fetch();
-      this.collections.contexts.trigger('reset');
-      return;
-    }
+    return this.data.reset(bootstrapObject);
+  }
+
+  function reset (resetObjects) {
+    var err;
 
     /*
      * Error handling:
@@ -38,7 +57,7 @@ function (errlog, util, Backbone, _) {
      *   log the error and set the data object to an empty array.
      */
     if (!resetObjects.user) {
-      err = new Error('user array in data reset did not exist');
+      err = new Error('User object in data reset did not exist');
       errlog(2, err);
       resetObjects.user = {};
     }
@@ -67,7 +86,7 @@ function (errlog, util, Backbone, _) {
     }
 
     if (resetObjects.user && ! _.isObject(resetObjects.user)) {
-      err = new Error('user array in data reset was not in the proper form');
+      err = new Error('User object in data reset was not in the proper form');
       err.user = resetObjects.user;
 
       errlog(2, err);
@@ -121,5 +140,16 @@ function (errlog, util, Backbone, _) {
     this.collections.tasks.reset(resetObjects.tasks);
     this.collections.projects.reset(resetObjects.projects);
     this.collections.contexts.reset(resetObjects.contexts);
-  };
+
+    return this;
+  }
+
+  return function init (_app) {
+    return {
+      empty: $.proxy(empty, _app),
+      fetch: $.proxy(fetch, _app),
+      bootstrap: $.proxy(bootstrap, _app),
+      reset: $.proxy(reset, _app),
+    };
+  }
 });

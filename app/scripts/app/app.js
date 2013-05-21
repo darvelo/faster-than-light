@@ -1,7 +1,7 @@
 define([
   'socket.io',
   'core/config',
-  'core/reset',
+  'core/dataMethods',
   'core/transitions',
   'routers/appRouter',
   'models/user',
@@ -16,7 +16,7 @@ define([
 function(
   io,
   AppConfig,
-  appDataReset,
+  appDataMethods,
   appTransitions,
   AppRouter,
   User,
@@ -38,8 +38,7 @@ function(
     this.booting = true;
 
 
-    this.createUser();
-    this.instantiateCollections();
+    this.initializeData();
     this.createViews();
     this.createRouter();
 
@@ -54,15 +53,16 @@ function(
     this.transition = appTransitions(this);
 
     /*
-     * Set up function for app to reset collections with fresh data,
-     * triggering a reset of Backbone Views with the 'reset' event
+     * Set up functions for app to manipulate its collections:
+     * emptying them, fetching them from the server, or bootstrapping.
+     * triggers a 'reset' event on each, which Backbone Views can listenTo
      */
-    this.resetData = appDataReset;
+    this.data = appDataMethods(this);
 
     /*
      * Trigger data reset and thus, Views' data population
      */
-    this.resetData(window.bootstrap || 'empty');
+    this.data.bootstrap(window.bootstrap);
 
 
 
@@ -76,28 +76,16 @@ function(
   App.prototype = {
     views: {},
     routers: {},
+    models: {},
     collections: {},
     currentView: null,
 
-    createUser: function createUser () {
+    initializeData: function initializeData () {
       /*
-       * Set up user model
+       * Instantiate empty global models and collections that other,
+       * local collections, and views, will reference once populated
        */
-      this.user = new User(window.bootstrap.user || []);
-      if (!window.bootstrap.user) {
-        // need user info before moving on
-        this.user.fetch({ async: false });
-      } else {
-        window.bootstrap.user = {};
-      }
-      this.user.app = this;
-    },
-
-    instantiateCollections: function instantiateCollections () {
-      /*
-       * Instantiate empty global collections that other,
-       * local collections will reference once populated
-       */
+      this.models.user = this.user = new User(); // this.user is shorthand :)
       this.collections.contexts = new ContextsCollection([]);
       this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
       this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
