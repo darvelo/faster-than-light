@@ -30,7 +30,7 @@ function (Backbone) {
       var app = this.app;
 
       console.log('MADE IT TO TODOS!');
-      this.app.transition.todos().then(function () {
+      app.transition(app.views.todos).then(function () {
         app.currentView = 'todos';
       });
     },
