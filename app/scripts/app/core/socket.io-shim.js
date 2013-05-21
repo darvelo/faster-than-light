@@ -45,7 +45,7 @@ function (util, _) {
 
         if (_.isEmpty(lastContexts)) {
           console.log('lastcontexts empty');
-          return app.resetData('empty');
+          return app.data.empty();
         }
 
         socket.emit('fullMonty', lastContexts);
@@ -55,7 +55,7 @@ function (util, _) {
         var lastContexts = _.values(app.user.get('lastContexts'));
 
         if (_.isEmpty(lastContexts)) {
-          return app.resetData('empty');
+          return app.data.empty();
         }
 
         socket.emit('fullMonty', lastContexts);
@@ -71,7 +71,7 @@ function (util, _) {
       });
       socket.on('fullMonty', function (data) {
         console.log('receiving fullMonty', data);
-        app.resetData(data);
+        app.data.empty();
       });
 
       socket.on('getUser', function (user) {
