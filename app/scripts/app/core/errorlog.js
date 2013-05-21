@@ -52,6 +52,10 @@ function (Backbone, $, _) {
     url: url,
   });
 
+  function disableApp () {
+    $('body').html('This page has encountered an error. Please refresh and try again.');
+  }
+
   function ajaxSuccess () {}
   function ajaxFail () {}
 
@@ -68,6 +72,10 @@ function (Backbone, $, _) {
     }
 
     jqXHR.then(ajaxSuccess).fail(ajaxFail);
+
+    if (!debugMode && errModel.get('severity') === 1) {
+      disableApp();
+    }
 
     return jqXHR;
   }
@@ -143,7 +151,7 @@ function (Backbone, $, _) {
     // Log the error to the server and continue
     } else {
       createError(1, msg, line);
-      $('body').html('This page has encountered an error. Please refresh and try again.');
+      disableApp();
 
       // returning true means the browser will not report
       // the error in console or in an alert to the user
