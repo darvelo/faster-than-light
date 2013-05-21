@@ -6,7 +6,7 @@ define([
 function ($, _) {
   'use strict';
 
-  var views;
+  var actionViews;
   var actionViewEls;
 
   function transition (view) {
@@ -21,11 +21,8 @@ function ($, _) {
   }
 
   function init (_app) {
-    views = _app.views;
-    actionViewEls = _.chain(views)
-                   .reject(function (view) { return view === views.app; })
-                   .map(function (view) { return view.el; })
-                   .value();
+    actionViews = _app.views.actionViews;
+    actionViewEls = _.map(actionViews, function (view) { return view.el; });
 
     return transition;
   }

@@ -3,6 +3,7 @@ define([
   'core/config',
   'core/dataMethods',
   'core/transitions',
+  'core/eventHandlers',
   'routers/appRouter',
   'models/user',
   'collections/contexts',
@@ -11,6 +12,7 @@ define([
   'views/app',
   'views/todos',
   'backbone',
+  'underscore',
 ],
 
 function(
@@ -18,6 +20,7 @@ function(
   AppConfig,
   appDataMethods,
   appTransitions,
+  appEventHandlers,
   AppRouter,
   User,
   ContextsCollection,
@@ -25,7 +28,8 @@ function(
   TasksCollection,
   AppView,
   TodosView,
-  Backbone
+  Backbone,
+  _
 ){
   'use strict';
 
@@ -51,6 +55,12 @@ function(
      * Set up view transition animation functions
      */
     this.transition = appTransitions(this);
+
+    /*
+     * Get Event-handling functions the app will use to listenTo objects
+     */
+    this.eventHandlers = appEventHandlers(this);
+    this.setupListeners();
 
     /*
      * Set up functions for app to manipulate its collections:
@@ -98,8 +108,21 @@ function(
       this.views.app = new AppView();
       this.views.app.render();
 
-      this.views.todos = new TodosView(this);
-      this.views.todos.render();
+      /*
+       * Placeholder for cached Views of todo-list hierarchies by context id
+       */
+      this.views.contextViews = {};
+
+      /*
+       * ActionViews are main app contexts like: todo-list, calendar, statistics, settings, etc.
+       */
+      this.views.actionViews = {};
+      this.views.actionViews.todos = new TodosView(this);
+      this.views.actionViews.todos.render();
+    },
+
+    setupListeners: function setupListeners () {
+      this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.contextDestroy);
     },
 
     createRouter: function createRouter () {
@@ -130,6 +153,8 @@ function(
     }
 */
   };
+
+  _.extend(App.prototype, Backbone.Events);
 
   return App;
 });
