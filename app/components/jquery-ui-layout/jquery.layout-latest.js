@@ -31,7 +31,7 @@
  */
 
 // NOTE: For best readability, view with a fixed-width font and tabs equal to 4-chars
-define(['jquery'], function ($) {
+define(['jquery', 'jqueryui'], function ($) {
 	var jQuery = $;
 
 
