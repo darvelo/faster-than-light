@@ -8,7 +8,7 @@ require.config({
     'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
     handlebars: '../../components/handlebars.js/handlebars.runtime',
     JST: 'templates',
-    underscore: '../../components/underscore/underscore',
+    underscore: '../../components/lodash/lodash',
     backbone: '../../components/backbone/backbone',
     'socket.io': 'core/socket.io-shim',
     bootstrap: '../vendor/bootstrap',

@@ -195,7 +195,7 @@ module.exports = function (grunt) {
                         // templates are compiled from '/.tmp'!
                         // in dev, express handles mapping that to '/scripts/app/templates'
                         JST: '../../../.tmp/scripts/app/templates',
-                        underscore: '../../components/underscore/underscore',
+                        underscore: '../../components/lodash/dist/lodash.min',
                         backbone: '../../components/backbone/backbone',
                         // use 'empty:' if you're trying to serve live.
                         // But serving a local file makes builds easier.
