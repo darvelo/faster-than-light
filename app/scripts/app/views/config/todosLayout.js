@@ -6,9 +6,9 @@ define([
 function ($, $ui) {
   'use strict';
 
-  return function retOptions (westSelector, centerSelector) {
+  return function retOptions (paneSelector, westSelector, centerSelector) {
     return {
-      name: 'contextsList' // NO FUNCTIONAL USE, but could be used by custom code to 'identify' a layout
+      name: 'todosLayout' // NO FUNCTIONAL USE, but could be used by custom code to 'identify' a layout
       // options.defaults apply to ALL PANES - but overridden by pane-specific settings
       , panes: {
         size:         'auto'
@@ -16,10 +16,10 @@ function ($, $ui) {
         ,   autoResize:              true        // IF size is 'auto' or a percentage, then recalc 'pixel size' whenever the layout resizes
         ,   autoReopen:              true        // IF a pane was auto-closed due to noRoom, reopen it when there is room? False = leave it closed
         , minSize:        50
-        , paneClass:        'pane'    // default = 'ui-layout-pane'
-        , resizerClass:     'resizer' // default = 'ui-layout-resizer'
-        , togglerClass:     'toggler' // default = 'ui-layout-toggler'
-        , buttonClass:      'button'  // default = 'ui-layout-button'
+        , paneClass:        paneSelector    // default = 'ui-layout-pane'
+        , resizerClass:     paneSelector + '-resizer' // default = 'ui-layout-resizer'
+        , togglerClass:     paneSelector + '-toggler' // default = 'ui-layout-toggler'
+        , buttonClass:      paneSelector + '-button'  // default = 'ui-layout-button'
         , contentSelector:    '.content'  // inner div to auto-size so only it scrolls, not the entire pane!
         , contentIgnoreSelector:  'span'    // 'paneSelector' for content to 'ignore' when measuring room for content
         , togglerLength_open:   0 // no toggler button available on divider
@@ -63,7 +63,7 @@ function ($, $ui) {
           }
         , onresize: function (paneType, $el, state, options, layoutName) {
             var resizeEvent = $.Event("paneResize");
-            $el.trigger(resizeEvent, [paneType, state.size]);
+            $el.trigger(resizeEvent, [paneType, 'outer', state.size]);
           }
         }
       , center: {
@@ -78,6 +78,12 @@ function ($, $ui) {
         //             }
         //         }
         //     }
+        }
+      , north: {
+        }
+      , south: {
+        }
+      , east: {
         }
     };
   }
