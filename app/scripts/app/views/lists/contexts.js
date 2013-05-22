@@ -8,14 +8,16 @@ function (BaseView, ContextListItemView, _) {
   'use strict';
 
   var Contexts = BaseView.extend({
-    el: '.contexts',
+    tagName: 'ul',
+    className: '.contexts',
 
     events: {},
 
-    initialize: function initialize () {
-      this.app = this.options.app;
+    initialize: function initialize (options) {
+      this.app = options.app;
       this.render();
 
+      this.listenTo(this.app.collections.contexts, 'reset', this.render);
       this.listenTo(this.collection, 'destroy', this.render);
     },
 
