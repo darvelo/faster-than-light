@@ -2,6 +2,7 @@ define([
   'socket.io',
   'core/config',
   'core/dataMethods',
+  'core/validators/index',
   'core/transitions',
   'core/eventHandlers',
   'models/user',
@@ -19,6 +20,7 @@ function(
   io,
   appConfig,
   appDataMethods,
+  appValidators,
   appTransitions,
   appEventHandlers,
   User,
@@ -44,6 +46,10 @@ function(
      */
     this.config = appConfig(this);
 
+    /*
+     * Validator functions for different model types
+     */
+    this.validators = appValidators;
 
     this.booting = true;
 
