@@ -79,7 +79,7 @@ function (errlog, util, Backbone, $, _) {
       invalidContexts = _.filter(resetObjects.contexts, function (context) {
         // if valid, will return null, and not trigger the filter
         return this.validators.context(context);
-      });
+      }, this);
 
       if (_.isEmpty(invalidContexts)) {
         contextsValidated = true;
@@ -91,7 +91,7 @@ function (errlog, util, Backbone, $, _) {
       invalidProjects = _.filter(resetObjects.projects, function (project) {
         // if valid, will return null, and not trigger the filter
         return this.validators.project(project);
-      });
+      }, this);
 
       if (_.isEmpty(invalidProjects)) {
         projectsValidated = true;
@@ -106,7 +106,7 @@ function (errlog, util, Backbone, $, _) {
       invalidAuxProjects = _.filter(resetObjects.auxProjects, function (auxProject) {
         // if valid, will return null, and not trigger the filter
         return this.validators.project(auxProject);
-      });
+      }, this);
 
       if (_.isEmpty(invalidAuxProjects)) {
         auxProjectsValidated = true;
@@ -118,7 +118,7 @@ function (errlog, util, Backbone, $, _) {
       invalidTasks = _.filter(resetObjects.tasks, function (task) {
         // if valid, will return null, and not trigger the filter
         return this.validators.task(task);
-      });
+      }, this);
 
       if (_.isEmpty(invalidTasks)) {
         tasksValidated = true;
