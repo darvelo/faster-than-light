@@ -14,7 +14,8 @@ function (BaseView, template, $) {
     events: {
     },
 
-    initialize: function() {
+    initialize: function(options) {
+      this.app = options.app;
     },
 
     render: function() {
