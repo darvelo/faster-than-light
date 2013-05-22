@@ -9,7 +9,7 @@ function (BaseView, ContextListItemView, _) {
 
   var Contexts = BaseView.extend({
     tagName: 'ul',
-    className: '.contexts',
+    className: 'contexts',
 
     events: {},
 
