@@ -50,39 +50,42 @@ function (errlog, util, Backbone, $, _) {
 
   function reset (resetObjects) {
     var err;
+    var user, contexts, projects, auxProjects, tasks;
 
     /*
      * Error handling:
      *   If data returned from server isn't in the proper format,
-     *   log the error and set the data object to an empty array.
+     *   log the error and set the temp variable to an empty array or object.
+     *   When the final calls set the global collections/models, they'll be a noop.
      */
+
     if (!resetObjects.user) {
       err = new Error('User object in data reset did not exist');
       errlog(2, err);
-      resetObjects.user = {};
+      user = {};
     }
 
     if (!resetObjects.contexts) {
       err = new Error('Contexts array in data reset did not exist');
       errlog(3, err);
-      resetObjects.contexts = [];
+      contexts = [];
     }
 
     if (!resetObjects.projects) {
       err = new Error('Projects array in data reset did not exist');
       errlog(3, err);
-      resetObjects.projects = [];
+      projects = [];
     }
 
     // auxProjects isn't strictly necessary, so no error sent
     if (!resetObjects.auxProjects) {
-      resetObjects.auxProjects = [];
+      auxProjects = [];
     }
 
     if (!resetObjects.tasks) {
       err = new Error('Tasks array in data reset did not exist');
       errlog(3, err);
-      resetObjects.tasks = [];
+      tasks = [];
     }
 
     if (resetObjects.user && ! _.isObject(resetObjects.user)) {
@@ -90,11 +93,11 @@ function (errlog, util, Backbone, $, _) {
       err.user = resetObjects.user;
 
       errlog(2, err);
-      resetObjects.user = {};
+      user = {};
     } else if (resetObjects.user) {
-      // remove properties of visual settings that
-      // may have been set by another client
-      util.deleteUserProps(resetObjects.user);
+      // deep clone user and remove properties of visual
+      // settings that may have been set by another client
+      user = util.deleteUserProps(resetObjects.user);
     }
 
     if (resetObjects.contexts && ! _.isArray(resetObjects.contexts)) {
@@ -102,7 +105,9 @@ function (errlog, util, Backbone, $, _) {
       err.contexts = resetObjects.contexts;
 
       errlog(3, err);
-      resetObjects.contexts = [];
+      contexts = [];
+    } else if (resetObjects.contexts) {
+      contexts = resetObjects.contexts;
     }
 
     if (resetObjects.projects && ! _.isArray(resetObjects.projects)) {
@@ -110,7 +115,9 @@ function (errlog, util, Backbone, $, _) {
       err.projects = resetObjects.projects;
 
       errlog(3, err);
-      resetObjects.projects = [];
+      projects = [];
+    } else if (resetObjects.projects) {
+      projects = resetObjects.projects;
     }
 
     if (resetObjects.tasks && ! _.isArray(resetObjects.tasks)) {
@@ -118,7 +125,9 @@ function (errlog, util, Backbone, $, _) {
       err.tasks = resetObjects.tasks;
 
       errlog(3, err);
-      resetObjects.tasks = [];
+      tasks = [];
+    } else if (resetObjects.tasks) {
+      tasks = resetObjects.tasks;
     }
 
     if (resetObjects.auxProjects && ! _.isArray(resetObjects.auxProjects)) {
@@ -126,20 +135,22 @@ function (errlog, util, Backbone, $, _) {
       err.auxProjects = resetObjects.auxProjects;
 
       errlog(3, err);
-      resetObjects.auxProjects = [];
-    } else {
-      // projects and auxProjects go in the same global projects collection
-      resetObjects.projects = resetObjects.projects.concat(resetObjects.auxProjects);
+      auxProjects = [];
+    } else if (resetObjects.auxProjects) {
+      auxProjects = resetObjects.auxProjects;
     }
+
+    // projects and auxProjects go in the same global projects collection
+    projects = projects.concat(auxProjects);
 
     // reset the app's global collections with the fresh data.
     // this will trigger the 'reset' event which other components may act upon.
     //
     // contexts gets reset last since that's the top-level dataset signifying completion
-    this.user.set(resetObjects.user);
-    this.collections.tasks.reset(resetObjects.tasks);
-    this.collections.projects.reset(resetObjects.projects);
-    this.collections.contexts.reset(resetObjects.contexts);
+    this.user.set(user);
+    this.collections.tasks.reset(tasks);
+    this.collections.projects.reset(projects);
+    this.collections.contexts.reset(contexts);
 
     return this;
   }

@@ -78,7 +78,7 @@ function (util, _) {
         console.log('receiving user', user);
         // remove properties of visual settings that
         // may have been set by another client
-        util.deleteUserProps(user);
+        user = util.deleteUserProps(user);
         app.user.set(user);
       });
 
