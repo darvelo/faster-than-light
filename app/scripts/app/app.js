@@ -111,7 +111,7 @@ function(
       /*
        * Create empty views
        */
-      this.views.app = new AppView();
+      this.views.app = new AppView({ app: this });
       this.views.app.render();
 
       /*
@@ -123,7 +123,7 @@ function(
        * ActionViews are main app contexts like: todo-list, calendar, statistics, settings, etc.
        */
       this.views.actionViews = {};
-      this.views.actionViews.todos = new TodosView(this);
+      this.views.actionViews.todos = new TodosView({ app: this });
       this.views.actionViews.todos.render();
     },
 
