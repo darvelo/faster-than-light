@@ -6,6 +6,7 @@ require.config({
     jquery: '../../components/jquery/jquery',
     jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
     'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
+    // needed for precompiled templates
     handlebars: '../../components/handlebars.js/handlebars.runtime',
     JST: 'templates',
     underscore: '../../components/lodash/lodash',
@@ -37,7 +38,7 @@ require.config({
     */
     handlebars: {
       deps: [],
-      exports: 'Handlebars'
+      exports: 'Handlebars',
     },
     underscore: {
       deps: [],

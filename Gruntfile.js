@@ -191,6 +191,7 @@ module.exports = function (grunt) {
                         jquery: '../../components/jquery/jquery',
                         jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
                         'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
+                        // needed for precompiled templates
                         handlebars: '../../components/handlebars.js/handlebars.runtime',
                         // templates are compiled from '/.tmp'!
                         // in dev, express handles mapping that to '/scripts/app/templates'
@@ -223,7 +224,7 @@ module.exports = function (grunt) {
                         },
                         handlebars: {
                             deps: [],
-                            exports: 'Handlebars'
+                            exports: 'Handlebars',
                         },
                         underscore: {
                             deps: [],
