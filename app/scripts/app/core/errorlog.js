@@ -53,6 +53,7 @@ function (Backbone, $, _) {
   });
 
   function disableApp () {
+    // probably should disable all backbone events / remove (not destroy) all models/collections/views
     $('body').html('This page has encountered an error. Please refresh and try again.');
   }
 
