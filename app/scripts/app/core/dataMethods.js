@@ -47,6 +47,7 @@ function (errlog, util, Backbone, $, _) {
     this.models.user.app = this;
 
     // initialize todos layout since user settings should be populated
+    // they're needed for setting up layout sizes and state
     this.trigger('todos:init');
 
     if (!bootstrapObject || _.isArray(bootstrapObject) || ! _.isObject(bootstrapObject) || _.isEmpty(bootstrapObject)) {
