@@ -16,6 +16,10 @@ function (BaseView, ContextListItemView, _) {
     initialize: function initialize (options) {
       this.app = options.app;
 
+      this.addListeners();
+    },
+
+    addListeners: function addListeners () {
       // this needs to be registered before the TodoView's listenTo on the same event
       this.listenTo(this.app.collections.contexts, 'reset', this.render);
 
