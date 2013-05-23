@@ -31,10 +31,25 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // context occupies which inner layout pane
       this.contextMap = {};
 
+      // a special listener that must be added on initialize
+      // so that the contextsList subView can be rendered and
+      // add its listeners before the listeners are added for
+      // this view, since it depends on events this view triggers.
       this.listenTo(this.app, 'todos:init', this.initLayout);
-      this.listenTo(this.app.collections.contexts, 'reset', this.renderLayout);
+    },
+
+    addListeners : function addListeners () {
+      this.listenTo(this.app.collections.contexts, 'reset', this.renderLastContexts);
+      this.listenTo(this.app.collections.contexts, 'destroy', this.removeContextTodo);
+      this.listenTo(this.app.collections.contexts, 'context:activate', this.createContextTodo);
+      this.listenTo(this.app.collections.contexts, 'context:deactivate', this.removeContextTodo);
       // might be useful?
       this.listenTo(this.app, 'todos:saveLayout', this.saveLayoutSettings);
+    },
+
+    removeListeners: function removeListeners () {
+      this.stopListening(this.app);
+      this.stopListening(this.app.collections.contexts);
     },
 
     render: function render () {
@@ -79,30 +94,144 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       this.subViews['contextsList'] = new ContextList({ app: this.app, collection: this.app.collections.contexts });
       this.$('.contextsList').append( this.subViews['contextsList'].$el );
 
+      // listeners for this view need to be added after the listeners
+      // for the contextsList view because that view needs to be rendered first
+      // in order to receive the 'context:(in)active' events from this view
+      this.addListeners();
+
 
       return this;
     },
 
-    renderLayout: function renderLayout () {
+    renderLastContexts: function renderLastContexts () {
       var outerLayout = this.app.outerLayout;
       var innerLayout = this.app.innerLayout;
+      var lastContexts = this.app.user.get('lastContexts');
+      var paneConfig = this.app.config.paneConfig;
+      var paneOrder = paneConfig.paneOrder;
 
-/*    OLD CODE
-      var lastContexts = this.app.user.get('lastContexts'),
-          renderingLists;
+
+      // remove any views that are in the context panes before rerendering lastcontexts
+      _.each(this.contextMap, function (position, contextId) {
+        var contextModel = this.app.collections.contexts.get(contextId);
+
+        // remove it all just to be safe
+        if (!contextModel) {
+          innerLayout.panes[position].empty();
+          delete this.contextMap[contextId];
+          return;
+        }
+
+        contextModel.trigger('context:deactivate', contextModel);
+      }, this);
+
 
       // render contexts in order so panes are opened the way they were last login
-      if (this.app.booting && ! _.isEmpty(lastContexts)) {
-        renderingLists = this.getRenderingLists(lastContexts);
+      _.each(lastContexts, function (contextId, position) {
+        var contextModel = this.app.collections.contexts.get(contextId);
+
+        if (!contextModel) {
+          // this will cause the 'context:activate' event to be sent back to us later
+          this.app.collections.contexts.trigger('fetch:lastContext', contextId, position);
+          return;
+        }
+
+        contextModel.trigger('context:activate', contextModel, position);
+      }, this);
+
+      return this;
+    },
+
+    createContextTodo: function createContextTodo (contextModel, /* optional */ position) {
+      var id = contextModel.get('id');
+
+      var nextPane;
+      var innerLayout = this.app.innerLayout;
+      var cachedView = this.app.views.contextViews[id];
+
+      var takenPanes = _.values(this.contextMap);
+      var takenPanesByPosition = _.invert(this.contextMap);;
+
+      var paneConfig = this.app.config.paneConfig;
+      var paneOrder = paneConfig.paneOrder;
+      var replacementPaneOrder = paneConfig.replacementPaneOrder;
+      var replacementPanePosition = replacementPaneOrder[0];
+      var replacementId;
+      var replacementModel;
+
+      // if the context $el is in an already open pane
+      if (this.contextMap[id]) {
+        return;
       }
 
-      new ContextList({ app: this.app, collection: this.app.collections.contexts });
-      new ContextPanes({
-        app: this.app,
-        collection: this.app.collections.contexts,
-        renderingLists: renderingLists,
-      });
-*/
+      if (!position) {
+        // get the first open pane position (south, east, etc.)
+        nextPane = _.difference(paneOrder, takenPanes)[0];
+      }
+
+      if (position && !takenPanesByPosition[position]) {
+        nextPane = position;
+      }
+
+      // deactivate a pane that's taken, activate the pane with the new context
+      if (!nextPane) {
+        replacementId = takenPanesByPosition[replacementPanePosition];
+        replacementModel = this.app.collections.contexts.get(replacementId);
+        replacementModel.trigger('context:deactivate', replacementModel);
+        nextPane = replacementPanePosition;
+      }
+
+      // if the contextView already exists in the app's views cache,
+      // move the element to the next open pane and toggle that pane open
+      if (!cachedView) {
+        contextModel.trigger('context:render', contextModel);
+        cachedView = this.app.views.contextViews[id];
+      }
+
+      this.contextMap[id] = nextPane;
+      innerLayout.panes[nextPane].html( cachedView.el );
+
+      // open pane if it's closed
+      if (innerLayout[nextPane].state.isClosed) {
+        innerLayout.toggle(nextPane);
+      }
+
+      this.$('.contextsPanes').addClass('active');
+      contextModel.trigger('context:active', contextModel);
+
+      this.saveLayoutSettings();
+      return this;
+    },
+
+    removeContextTodo: function removeContextTodo (contextModel) {
+      var id = contextModel.get('id');
+      var innerLayout = this.app.innerLayout;
+      var paneCount;
+
+
+      // if the context isn't in an open pane
+      if (!this.contextMap[id]) {
+        return;
+      }
+
+      if (this.contextMap[id] !== 'center') {
+        innerLayout.toggle(this.contextMap[id]);
+        delete this.contextMap[id];
+        return;
+      }
+
+      // have to replace the center pane with another contextView to make it seamless
+
+
+      paneCount = _.reduce(this.contextMap, function (memo, val) { return memo + (!!val ? 1: 0); }, 0);
+      if (paneCount === 0) {
+        this.$('.contextsPanes').removeClass('active');
+      }
+
+      delete this.contextMap[id];
+      contextModel.trigger('context:inactive', contextModel);
+
+      this.saveLayoutSettings();
       return this;
     },
 
@@ -138,16 +267,13 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
     // _.debounce will keep the context to the view.
     // i use it here to prevent multiple saves to the server
     // in the case of many resize/close events happening in succession
-    saveLayoutSettings: _.debounce(function saveLayoutSettings (e, a , bb, c) {
-
-      /*console.log('resizing..',e, a , bb, c);
-      console.log($(e.target));
-      return;
-      */
-
+    saveLayoutSettings: _.debounce(function saveLayoutSettings () {
       var app = this.app;
       var outerLayout = this.app.outerLayout;
       var innerLayout = this.app.innerLayout;
+      var takenPanesByPosition = _.invert(this.contextMap);
+      var paneConfig = this.app.config.paneConfig;
+      var paneOrder = paneConfig.paneOrder;
 
       // .set() only the attrs we need to
       var tmpUser = {};
@@ -159,17 +285,21 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       tmpUser.menu.size = outerLayout.west.state.size;
       tmpUser.menu.isClosed = outerLayout.west.state.isClosed;
 
-      _.each(['north', 'south', 'east', 'west'], function (position) {
-        if (!innerLayout[position].state.isClosed) { // && this.contextMap[position]) {
-          // get the context id that's inside the open pane using the local model map
-          // tmpUser.lastContexts[position] = this.contextMap[position].get('id');
+      _.each(paneOrder, function (position) {
+        if (takenPanesByPosition[position]) {
+          tmpUser.lastContexts[position] = takenPanesByPosition[position];
         }
 
-        tmpUser.paneSizes[position] = innerLayout[position].state.size;
+        // center has no size
+        if (position !== 'center') {
+          tmpUser.paneSizes[position] = innerLayout[position].state.size;
+        }
       }, this);
 
       var jqXHR = this.app.user.save(tmpUser);
 
+
+      console.log('TODO: do something to show the user the jqXHR error');
       // validation failed
       if (!jqXHR ) {
         // do something to show the user the error
