@@ -52,15 +52,6 @@ function(
     this.validators = appValidators;
 
 
-    this.initializeData();
-    this.createViews();
-    this.createRouter();
-
-    /*
-     * Easy app-wide URL navigation function
-     */
-    this.navigate = this.routers.appRouter.navigate;
-
     /*
      * Set up view transition animation functions
      */
@@ -70,7 +61,6 @@ function(
      * Get Event-handling functions the app will use to listenTo objects
      */
     this.eventHandlers = appEventHandlers(this);
-    this.setupListeners();
 
     /*
      * Set up functions for app to manipulate its collections:
@@ -78,6 +68,19 @@ function(
      * triggers a 'reset' event on each, which Backbone Views can listenTo
      */
     this.data = appDataMethods(this);
+
+
+    this.initializeData();
+    // app's event listeners are bound before anything else's
+    this.addListeners();
+    this.createViews();
+    this.createRouter();
+
+    /*
+     * Easy app-wide URL navigation function
+     */
+    this.navigate = this.routers.appRouter.navigate;
+
 
     /*
      * Trigger data reset and thus, Views' data population
@@ -104,7 +107,7 @@ function(
        * local collections, and views, will reference once populated
        */
       this.models.user = this.user = new User(); // this.user is shorthand :)
-      this.collections.contexts = new ContextsCollection([]);
+      this.collections.contexts = new ContextsCollection([]); // comparatorItem is always 'order'
       this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
       this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
     },
@@ -129,8 +132,9 @@ function(
       this.views.actionViews.todos.render();
     },
 
-    setupListeners: function setupListeners () {
+    addListeners: function addListeners () {
       this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.contextDestroy);
+      this.listenTo(this.collections.contexts, 'reset', this.eventHandlers.teardownContextViews);
       this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodos);
       this.listenTo(this.collections.contexts, 'fetch:lastContext', this.eventHandlers.fetchLastContext);
     },

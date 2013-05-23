@@ -40,11 +40,20 @@ function (errlog, ContextModel, ContextTodoView, $, _) {
       });
   }
 
+  function teardownContextViews () {
+    _.each(this.views.contextViews, function (view, contextId) {
+      view._teardown();
+    }, this);
+
+    this.views.contextViews = {};
+  }
+
   function init (_app) {
     return {
       contextDestroy: $.proxy(contextDestroy, _app),
       contextRenderTodos: $.proxy(contextRenderTodos, _app),
       fetchLastContext: $.proxy(fetchLastContext, _app),
+      teardownContextViews: $.proxy(teardownContextViews, _app),
     };
   }
 
