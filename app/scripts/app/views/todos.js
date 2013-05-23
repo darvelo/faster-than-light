@@ -40,9 +40,9 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
 
     addListeners : function addListeners () {
       this.listenTo(this.app.collections.contexts, 'reset', this.renderLastContexts);
-      this.listenTo(this.app.collections.contexts, 'destroy', this.removeContextTodo);
       this.listenTo(this.app.collections.contexts, 'context:activate', this.createContextTodo);
       this.listenTo(this.app.collections.contexts, 'context:deactivate', this.removeContextTodo);
+      this.listenTo(this.app.collections.contexts, 'destroy', this.removeContextTodo);
       // might be useful?
       this.listenTo(this.app, 'todos:saveLayout', this.saveLayoutSettings);
     },
@@ -233,35 +233,6 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
 
       this.saveLayoutSettings();
       return this;
-    },
-
-    getRenderingLists: function getRenderingLists (lastContexts) {
-      var lastContextsIds, // gonna filter by the id value later
-          renderFirst = {}, // object because ids will be referenced by position (value)
-          renderLast = [];
-
-
-      // get the order in which the ContextPanes should be rendered
-
-      lastContextsIds = _.invert(lastContexts);
-
-      this.app.collections.contexts.each(function (context) {
-        var contextId = context.get('id'),
-            found = _.has(lastContextsIds, contextId);
-
-        if (found) {
-          // some trickery to get the object to look like: { position: contextObject }
-          renderFirst[ lastContextsIds[contextId] ] = context;
-        } else {
-          renderLast.push(context);
-        }
-      }, this);
-
-      return {
-        first: renderFirst,
-        last: renderLast,
-        lastContexts: _.values(lastContexts),
-      };
     },
 
     // _.debounce will keep the context to the view.
