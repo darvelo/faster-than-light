@@ -9,21 +9,112 @@ define([
 function (errlog, util, Backbone, $, _) {
   'use strict';
 
+  var app;
+
   function empty () {
-    this.collections.tasks.reset();
-    this.collections.projects.reset();
+    app.collections.tasks.reset();
+    app.collections.projects.reset();
     // kick off the app again with a fresh pull of contexts data for
     // things like lists that the user can click on to trigger AJAX events
-    this.collections.contexts.fetch({ reset: true });
-    return this;
+    app.collections.contexts.fetch({ reset: true });
+    return app;
   }
 
   function fetch () {
-    this.collections.tasks.fetch();
-    this.collections.projects.fetch();
-    this.collections.contexts.fetch();
-    this.collections.contexts.trigger('reset');
-    return this;
+    app.collections.tasks.fetch();
+    app.collections.projects.fetch();
+    app.collections.contexts.fetch();
+    app.collections.contexts.trigger('reset');
+    return app;
+  }
+
+  function validate (data) {
+    if (!data) {
+      err = new Error('data did not exist in app validation method. App may be in an inconsistent state');
+      errlog(1, err);
+
+      return false;
+    }
+
+    /*
+     * Validation mechanisms
+     */
+    var userValidated = data.user && app.validators.user(data.user) === null;
+
+    var contextsValidated, invalidContexts;
+    if (_.isArray(data.contexts)) {
+      invalidContexts = _.filter(data.contexts, function (context) {
+        // if valid, will return null, and not trigger the filter
+        return app.validators.context(context);
+      }, app);
+
+      if (_.isEmpty(invalidContexts)) {
+        contextsValidated = true;
+      }
+    }
+
+    var projectsValidated, invalidProjects;
+    if (_.isArray(data.projects)) {
+      invalidProjects = _.filter(data.projects, function (project) {
+        // if valid, will return null, and not trigger the filter
+        return app.validators.project(project);
+      }, app);
+
+      if (_.isEmpty(invalidProjects)) {
+        projectsValidated = true;
+      }
+    }
+
+    var auxProjectsValidated, invalidAuxProjects;
+    // auxProjects may be empty, which is fine
+    if (!data.auxProjects || (_.isArray(data.auxProjects) && _.isEmpty(data.auxProjects))) {
+      auxProjectsValidated = true;
+    } else if (_.isArray(data.auxProjects)) {
+      invalidAuxProjects = _.filter(data.auxProjects, function (auxProject) {
+        // if valid, will return null, and not trigger the filter
+        return app.validators.project(auxProject);
+      }, app);
+
+      if (_.isEmpty(invalidAuxProjects)) {
+        auxProjectsValidated = true;
+      }
+    }
+
+    var tasksValidated, invalidTasks;
+    if (_.isArray(data.tasks)) {
+      invalidTasks = _.filter(data.tasks, function (task) {
+        // if valid, will return null, and not trigger the filter
+        return app.validators.task(task);
+      }, app);
+
+      if (_.isEmpty(invalidTasks)) {
+        tasksValidated = true;
+      }
+    }
+
+    return {
+      user: userValidated,
+      invalidUser: data.user,
+
+      contexts: contextsValidated,
+      invalidContexts: invalidContexts,
+
+      projects: projectsValidated,
+      invalidProjects: invalidProjects,
+
+      auxProjects: auxProjectsValidated,
+      invalidAuxProjects: invalidAuxProjects,
+
+      tasks: tasksValidated,
+      invalidTasks: invalidTasks,
+    };
+  }
+
+  function merge (data) {
+    var valid = validate(data);
+
+    // merge what's there ()
+
   }
 
   function bootstrap (bootstrapObject) {
@@ -34,98 +125,35 @@ function (errlog, util, Backbone, $, _) {
      */
     if (!bootstrapObject || !bootstrapObject.user) {
       // need user info before moving on
-      this.user.fetch({ async: false });
+      app.user.fetch({ async: false });
     }
 
     if (bootstrapObject.user && _.isObject(bootstrapObject.user) &&
         // if validation passes
-        this.validators.user(bootstrapObject.user) === null) {
+        app.validators.user(bootstrapObject.user) === null) {
 
-      this.models.user.set(bootstrapObject.user);
+      app.models.user.set(bootstrapObject.user);
     }
 
-    this.models.user.app = this;
+    app.models.user.app = app;
 
     // initialize todos layout since user settings should be populated
     // they're needed for setting up layout sizes and state
-    this.trigger('todos:init');
+    app.trigger('todos:init');
 
     if (!bootstrapObject || _.isArray(bootstrapObject) || ! _.isObject(bootstrapObject) || _.isEmpty(bootstrapObject)) {
       err = new Error('Bootstrap does not exist!');
       errlog(2, err);
-      return this.data.empty();
+      return app.data.empty();
     }
 
-    return this.data.reset(bootstrapObject);
+    return app.data.reset(bootstrapObject);
   }
 
-  function reset (resetObjects) {
+  function reset (data) {
     var err;
+    var valid = validate(data);
     var user, contexts, projects, auxProjects, tasks;
-
-    if (!resetObjects) {
-      err = new Error('resetObjects did not exist in app reset method. App may be in an inconsistent state');
-      errlog(1, err);
-
-      return false;
-    }
-
-    /*
-     * Validation mechanisms
-     */
-    var userValidated = resetObjects.user && this.validators.user(resetObjects.user) === null;
-
-    var contextsValidated, invalidContexts;
-    if (_.isArray(resetObjects.contexts)) {
-      invalidContexts = _.filter(resetObjects.contexts, function (context) {
-        // if valid, will return null, and not trigger the filter
-        return this.validators.context(context);
-      }, this);
-
-      if (_.isEmpty(invalidContexts)) {
-        contextsValidated = true;
-      }
-    }
-
-    var projectsValidated, invalidProjects;
-    if (_.isArray(resetObjects.projects)) {
-      invalidProjects = _.filter(resetObjects.projects, function (project) {
-        // if valid, will return null, and not trigger the filter
-        return this.validators.project(project);
-      }, this);
-
-      if (_.isEmpty(invalidProjects)) {
-        projectsValidated = true;
-      }
-    }
-
-    var auxProjectsValidated, invalidAuxProjects;
-    // auxProjects may be empty, which is fine
-    if (!resetObjects.auxProjects || (_.isArray(resetObjects.auxProjects) && _.isEmpty(resetObjects.auxProjects))) {
-      auxProjectsValidated = true;
-    } else if (_.isArray(resetObjects.auxProjects)) {
-      invalidAuxProjects = _.filter(resetObjects.auxProjects, function (auxProject) {
-        // if valid, will return null, and not trigger the filter
-        return this.validators.project(auxProject);
-      }, this);
-
-      if (_.isEmpty(invalidAuxProjects)) {
-        auxProjectsValidated = true;
-      }
-    }
-
-    var tasksValidated, invalidTasks;
-    if (_.isArray(resetObjects.tasks)) {
-      invalidTasks = _.filter(resetObjects.tasks, function (task) {
-        // if valid, will return null, and not trigger the filter
-        return this.validators.task(task);
-      }, this);
-
-      if (_.isEmpty(invalidTasks)) {
-        tasksValidated = true;
-      }
-    }
-
 
     /*
      * Error handling:
@@ -133,76 +161,76 @@ function (errlog, util, Backbone, $, _) {
      *   log the error and set the temp variable to an empty array or object.
      *   When the final calls set the global collections/models, they'll be a noop.
      */
-    if (resetObjects.user && _.isObject(resetObjects.user) && userValidated) {
+    if (data.user && _.isObject(data.user) && valid.user) {
       // deep clone user and remove properties of visual
       // settings that may have been set by another client
-      user = util.deleteUserProps(resetObjects.user);
-    } else if (!resetObjects.user) {
+      user = util.deleteUserProps(data.user);
+    } else if (!data.user) {
       err = new Error('User object in data reset did not exist');
       errlog(2, err);
 
       user = {};
     } else {
       err = new Error('User object in data reset was not in the proper form');
-      err.user = resetObjects.user;
+      err.user = valid.invalidUser;
       errlog(2, err);
 
       user = {};
     }
 
-    if (resetObjects.contexts && _.isArray(resetObjects.contexts) && contextsValidated) {
-      contexts = resetObjects.contexts;
-    } else if (!resetObjects.contexts) {
+    if (data.contexts && _.isArray(data.contexts) && valid.contexts) {
+      contexts = data.contexts;
+    } else if (!data.contexts) {
       err = new Error('Contexts array in data reset did not exist');
       errlog(3, err);
 
       contexts = [];
     } else {
       err = new Error('Contexts array in data reset was not in the proper form');
-      err.contexts = invalidContexts;
+      err.contexts = valid.invalidContexts;
       errlog(3, err);
 
       contexts = [];
     }
 
-    if (resetObjects.projects && _.isArray(resetObjects.projects) && projectsValidated) {
-      projects = resetObjects.projects;
-    } else if (!resetObjects.projects) {
+    if (data.projects && _.isArray(data.projects) && valid.projects) {
+      projects = data.projects;
+    } else if (!data.projects) {
       err = new Error('Projects array in data reset did not exist');
       errlog(3, err);
 
       projects = [];
     } else {
       err = new Error('Projects array in data reset was not in the proper form');
-      err.projects = invalidProjects;
+      err.projects = valid.invalidProjects;
       errlog(3, err);
 
       projects = [];
     }
 
     // auxProjects isn't strictly necessary, so no error sent
-    if (!resetObjects.auxProjects || (_.isArray(resetObjects.auxProjects) && _.isEmpty(resetObjects.auxProjects))) {
+    if (!data.auxProjects || (_.isArray(data.auxProjects) && _.isEmpty(data.auxProjects))) {
       auxProjects = [];
-    } else if (resetObjects.auxProjects && _.isArray(resetObjects.auxProjects) && auxProjectsValidated) {
-      auxProjects = resetObjects.auxProjects;
+    } else if (data.auxProjects && _.isArray(data.auxProjects) && valid.auxProjects) {
+      auxProjects = data.auxProjects;
     } else {
       err = new Error('auxProjects array in data reset was not in the proper form');
-      err.auxProjects = invalidAuxProjects;
+      err.auxProjects = valid.invalidAuxProjects;
       errlog(3, err);
 
       auxProjects = [];
     }
 
-    if (resetObjects.tasks && _.isArray(resetObjects.tasks) && tasksValidated) {
-      tasks = resetObjects.tasks;
-    } else if (!resetObjects.tasks) {
+    if (data.tasks && _.isArray(data.tasks) && valid.tasks) {
+      tasks = data.tasks;
+    } else if (!data.tasks) {
       err = new Error('Tasks array in data reset did not exist');
       errlog(3, err);
 
       tasks = [];
     } else {
       err = new Error('Tasks array in data reset was not in the proper form');
-      err.tasks = invalidTasks;
+      err.tasks = valid.invalidTasks;
       errlog(3, err);
 
       tasks = [];
@@ -215,20 +243,22 @@ function (errlog, util, Backbone, $, _) {
     // this will trigger the 'reset' event which other components may act upon.
     //
     // contexts gets reset last since that's the top-level dataset signifying completion
-    this.user.set(user);
-    this.collections.tasks.reset(tasks);
-    this.collections.projects.reset(projects);
-    this.collections.contexts.reset(contexts);
+    app.user.set(user);
+    app.collections.tasks.reset(tasks);
+    app.collections.projects.reset(projects);
+    app.collections.contexts.reset(contexts);
 
-    return this;
+    return app;
   }
 
   return function init (_app) {
+    app = _app;
+
     return {
-      empty: $.proxy(empty, _app),
-      fetch: $.proxy(fetch, _app),
-      bootstrap: $.proxy(bootstrap, _app),
-      reset: $.proxy(reset, _app),
+      empty: empty,
+      fetch: fetch,
+      bootstrap: bootstrap,
+      reset: reset,
     };
   }
 });
