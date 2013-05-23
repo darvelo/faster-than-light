@@ -135,7 +135,7 @@ function(
     addListeners: function addListeners () {
       this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.contextDestroy);
       this.listenTo(this.collections.contexts, 'reset', this.eventHandlers.teardownContextViews);
-      this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodos);
+      this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodo);
       this.listenTo(this.collections.contexts, 'fetch:lastContext', this.eventHandlers.fetchLastContext);
     },
 

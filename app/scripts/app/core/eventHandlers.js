@@ -15,8 +15,10 @@ function (errlog, ContextModel, ContextTodoView, $, _) {
     return this;
   }
 
-  function contextRenderTodos (contextModel) {
-    this.views.contextViews[contextModel.get('id')] = new ContextTodoView({ app: this, model: contextModel });
+  function contextRenderTodo (contextModel) {
+    var contextView = new ContextTodoView({ app: this, model: contextModel });
+
+    this.views.contextViews[contextModel.get('id')] = contextView.render();
 
     return this;
   }
@@ -51,7 +53,7 @@ function (errlog, ContextModel, ContextTodoView, $, _) {
   function init (_app) {
     return {
       contextDestroy: $.proxy(contextDestroy, _app),
-      contextRenderTodos: $.proxy(contextRenderTodos, _app),
+      contextRenderTodo: $.proxy(contextRenderTodo, _app),
       fetchLastContext: $.proxy(fetchLastContext, _app),
       teardownContextViews: $.proxy(teardownContextViews, _app),
     };

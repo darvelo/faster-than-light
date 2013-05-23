@@ -22,9 +22,9 @@ function (innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, templat
       'paneClose': 'finishOtherPaneRemoval',
     },
 
-    initialize: function initialize () {
-      this.app = this.options.app;
-      this.position = false;
+    initialize: function initialize (options) {
+      this.app = options.app;
+      this.subViews = {};
 
 /*      if (this.app.booting && this.options.position) {
         if (_.contains(this.options.lastContexts, this.model.get('id'))) {
@@ -44,8 +44,6 @@ function (innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, templat
       this.listenTo(this.model, 'remove:pane', this.removePane);
       this.listenTo(this.model, 'change:title', function (model) { console.log('model title changed -- paneview', this.$el); this.render() });
 */
-      this.render();
-
     },
 
     prepareData: function prepareData (callback) {
