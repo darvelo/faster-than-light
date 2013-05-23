@@ -82,6 +82,16 @@ function (Backbone, $, _) {
 
 
   function createError (severity, msg, line) {
+    // an array of errors will send one error for each
+    if (_.isArray(msg)) {
+      _.each(msg, function (error) {
+        // the array of errors may have an overarching message
+        error.callerMessage = msg.callerMessage;
+        createError(severity, error, line);
+      });
+      return;
+    }
+
     // causes window.onerror to catch errors instead of sending them to the server
     if (debugMode && msg instanceof Error) {
       throw msg;
