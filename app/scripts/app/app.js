@@ -51,8 +51,6 @@ function(
      */
     this.validators = appValidators;
 
-    this.booting = true;
-
 
     this.initializeData();
     this.createViews();
@@ -90,7 +88,6 @@ function(
     Backbone.history.start({ pushState: true });
 
 
-    this.booting = false;
     // this.connectApi();
   };
 
