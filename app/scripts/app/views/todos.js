@@ -30,15 +30,10 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // used to store information about which
       // context occupies which inner layout pane
       this.contextMap = {};
-
-      // a special listener that must be added on initialize
-      // so that the contextsList subView can be rendered and
-      // add its listeners before the listeners are added for
-      // this view, since it depends on events this view triggers.
-      this.listenTo(this.app, 'todos:init', this.initLayout);
     },
 
     addListeners : function addListeners () {
+      this.listenTo(this.app, 'todos:init', this.initLayout);
       this.listenTo(this.app.collections.contexts, 'reset', this.renderLastContexts);
       this.listenTo(this.app.collections.contexts, 'context:activate', this.createContextTodo);
       this.listenTo(this.app.collections.contexts, 'context:deactivate', this.removeContextTodo);
@@ -47,13 +42,18 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       this.listenTo(this.app, 'todos:saveLayout', this.saveLayoutSettings);
     },
 
-    removeListeners: function removeListeners () {
-      this.stopListening(this.app);
-      this.stopListening(this.app.collections.contexts);
-    },
-
     render: function render () {
       this.$el.html(template());
+
+      /*
+       * Render ContextList sidebar contents container
+       */
+      this.subViews.contextList = new ContextList({ app: this.app, collection: this.app.collections.contexts });
+
+      // listeners for this view need to be added after the listeners
+      // for the contextList view because that view needs to respond
+      // to the global contexts collection 'reset' event before this does
+      this.addListeners();
 
       return this;
     },
@@ -62,7 +62,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       /*
        * Render Main Todos Layout and Context Panes Layout
        */
-      var outerLayoutConfig = outerLayoutConfigGen('outer-pane', '.contextsList', '.contextsPanes');
+      var outerLayoutConfig = outerLayoutConfigGen('outer-pane', '.contextList', '.contextPanes');
       var innerLayoutConfig = innerLayoutConfigGen('inner-pane', '.activateAContext');
 
       var menu = this.app.user.get('menu') || {};
@@ -85,20 +85,9 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       }, this);
 
       this.app.outerLayout = this.$el.layout(outerLayoutConfig);
-      this.app.innerLayout = this.$('.contextsPanes').layout(innerLayoutConfig);
+      this.app.innerLayout = this.$('.contextPanes').layout(innerLayoutConfig);
 
-
-      /*
-       * Render ContextsList sidebar contents container
-       */
-      this.subViews['contextsList'] = new ContextList({ app: this.app, collection: this.app.collections.contexts });
-      this.$('.contextsList').append( this.subViews['contextsList'].$el );
-
-      // listeners for this view need to be added after the listeners
-      // for the contextsList view because that view needs to be rendered first
-      // in order to receive the 'context:(in)active' events from this view
-      this.addListeners();
-
+      this.$('.contextList').append( this.subViews.contextList.render().$el );
 
       return this;
     },
@@ -196,7 +185,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
         innerLayout.toggle(nextPane);
       }
 
-      this.$('.contextsPanes').addClass('active');
+      this.$('.contextPanes').addClass('active');
       contextModel.trigger('context:active', contextModel);
 
       this.saveLayoutSettings();
@@ -225,7 +214,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
 
       paneCount = _.reduce(this.contextMap, function (memo, val) { return memo + (!!val ? 1: 0); }, 0);
       if (paneCount === 0) {
-        this.$('.contextsPanes').removeClass('active');
+        this.$('.contextPanes').removeClass('active');
       }
 
       delete this.contextMap[id];

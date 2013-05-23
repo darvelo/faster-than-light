@@ -87,7 +87,7 @@ html, body {
   width: 100%;
 }
 
-.contextsList, .contextsLayout {
+.contextList, .contextsLayout {
   overflow: auto;
 }
 
@@ -100,10 +100,10 @@ html, body {
   display: block;
 } */
 
-.contextsPanes .inner-pane-center {
+.contextPanes .inner-pane-center {
   background: url('/images/100_1700.jpg') 50% 50%;
 }
-.contextsPanes.active .inner-pane-center {
+.contextPanes.active .inner-pane-center {
   background: #FFF;
 }
 

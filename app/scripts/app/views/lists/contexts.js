@@ -7,7 +7,7 @@ define([
 function (BaseView, ContextListItemView, _) {
   'use strict';
 
-  var Contexts = BaseView.extend({
+  var ContextListView = BaseView.extend({
     tagName: 'ul',
     className: 'contexts',
 
@@ -37,5 +37,5 @@ function (BaseView, ContextListItemView, _) {
     },
   });
 
-  return Contexts;
+  return ContextListView;
 });

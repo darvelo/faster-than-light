@@ -53,7 +53,7 @@
 }
 .subhead { border-bottom: 1px solid #777; }
 .footer  { border-top: 1px solid #777; }
-.contextsPanes .footer  { border-top: 1px solid #BBB; }
+.contextPanes .footer  { border-top: 1px solid #BBB; }
 
 
 
@@ -61,22 +61,22 @@
 * INNER-LAYOUT PANE FORMATTING
 */
 
-.contextsPanes .inner-pane {
+.contextPanes .inner-pane {
   /*padding: 10px;*/
 }
-.contextsPanes .inner-pane-north ,
-.contextsPanes .inner-pane-south {
+.contextPanes .inner-pane-north ,
+.contextPanes .inner-pane-south {
   text-align: center;
 }
-.contextsPanes .inner-pane-center {
+.contextPanes .inner-pane-center {
   padding: 0 !important; /* inner divs have padding */
 }
-.contextsPanes .projects { /* pane content div */
+.contextPanes .projects { /* pane content div */
   padding:  10px;
   position: relative;
   overflow: auto;
 }
-.contextsPanes .inner-pane-center h3 {
+.contextPanes .inner-pane-center h3 {
   font-size: 1em;
   padding: 5px;
   margin: 0;
@@ -264,43 +264,43 @@ span.outer-pane-button-close-east:hover  { background: url(../img/go-rt-on.gif) 
 * This layout has applyDefaultCSS=true, so use !important to override defaults
 */
 
-.contextsPanes .inner-pane-resizer-open  { display: block !important; }
-.contextsPanes .inner-pane-resizer-closed:hover  { background: #FFEDCA !important; }
-.contextsPanes .inner-pane-resizer-open:hover ,
-.contextsPanes .inner-pane-resizer-dragging    { background: #C4E1A4 !important; }
-.contextsPanes .inner-pane-resizer-dragging-limit  { background: #FF3300 !important; }
+.contextPanes .inner-pane-resizer-open  { display: block !important; }
+.contextPanes .inner-pane-resizer-closed:hover  { background: #FFEDCA !important; }
+.contextPanes .inner-pane-resizer-open:hover ,
+.contextPanes .inner-pane-resizer-dragging    { background: #C4E1A4 !important; }
+.contextPanes .inner-pane-resizer-dragging-limit  { background: #FF3300 !important; }
 
-.contextsPanes .inner-pane-resizer-north ,
-.contextsPanes .inner-pane-resizer-south   { border-left:  1px solid #BBB !important;
+.contextPanes .inner-pane-resizer-north ,
+.contextPanes .inner-pane-resizer-south   { border-left:  1px solid #BBB !important;
                         border-right: 1px solid #BBB !important; }
-.contextsPanes .inner-pane-resizer-north-closed{ border-top:   1px solid #BBB !important; }
-.contextsPanes .inner-pane-resizer-south-closed{ border-bottom:1px solid #BBB !important; }
-.contextsPanes .inner-pane-resizer-west-closed { border-left:  1px solid #BBB !important; }
-.contextsPanes .inner-pane-resizer-east-closed { border-right: 1px solid #BBB !important; }
+.contextPanes .inner-pane-resizer-north-closed{ border-top:   1px solid #BBB !important; }
+.contextPanes .inner-pane-resizer-south-closed{ border-bottom:1px solid #BBB !important; }
+.contextPanes .inner-pane-resizer-west-closed { border-left:  1px solid #BBB !important; }
+.contextPanes .inner-pane-resizer-east-closed { border-right: 1px solid #BBB !important; }
 
-.contextsPanes .inner-pane-resizer:hover .inner-pane-toggler {
+.contextPanes .inner-pane-resizer:hover .inner-pane-toggler {
   opacity: 0.4;
   filter: alpha(opacity=40);
 }
-.contextsPanes .inner-pane-resizer:hover .inner-pane-toggler:hover {
+.contextPanes .inner-pane-resizer:hover .inner-pane-toggler:hover {
   opacity: 1;
   filter: alpha(opacity=100);
   background: #FD9 !important;
   border-color: #CB7 !important;
 }
 
-.contextsPanes .inner-pane-resizer-sliding {
+.contextPanes .inner-pane-resizer-sliding {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
-.contextsPanes .inner-pane-resizer-sliding:hover {
+.contextPanes .inner-pane-resizer-sliding:hover {
   opacity: 1;
   filter: alpha(opacity=100);
 }
-.contextsPanes .inner-pane-resizer-sliding .inner-pane-toggler {
+.contextPanes .inner-pane-resizer-sliding .inner-pane-toggler {
   display: none !important;
 }
-.contextsPanes .inner-pane-resizer-sliding:hover .inner-pane-toggler {
+.contextPanes .inner-pane-resizer-sliding:hover .inner-pane-toggler {
   display: block !important;
 }
 
