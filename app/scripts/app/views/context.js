@@ -22,8 +22,10 @@ function (BaseView, ProjectsCollection, template, _) {
       this.app = this.options.app;
       this.active = false;
 
-      this.listenTo(this.model, 'change:active', this.setActive);
-      this.listenTo(this.model, 'change:inactive', this.setInactive);
+      // these need to be registered before the TodoView fires these events
+      this.listenTo(this.model, 'context:active', this.setActive);
+      this.listenTo(this.model, 'context:inactive', this.setInactive);
+
       this.listenTo(this.model, 'change:title', function (model) {
         console.log('model title changed -- listview', this.$el);
         this.$('.title').text(model.get('title'));
@@ -50,9 +52,9 @@ function (BaseView, ProjectsCollection, template, _) {
 
     toggleActive: function toggleContext (e) {
       if (this.active) {
-        this.model.trigger('remove:pane');
+        this.model.trigger('context:deactivate', this.model);
       } else {
-        this.model.trigger('add:pane');
+        this.model.trigger('context:activate', this.model);
       }
     },
   });
