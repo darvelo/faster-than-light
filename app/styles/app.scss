@@ -91,21 +91,20 @@ html, body {
   overflow: auto;
 }
 
-#inactiveContexts {
-  display: none;
-}
-
-.contextsPanes .activateAContext {
+/* .contextsPanes {
   // background: url(pichere);
-  background: #4C4;
+  background: #FFF;
   position: absolute;
   width: 100%;
   height: 100%;
   display: block;
-}
+} */
 
-.contextsPanes.active .activateAContext {
-  display: none;
+.contextsPanes .inner-pane-center {
+  background: url('/images/100_1700.jpg') 50% 50%;
+}
+.contextsPanes.active .inner-pane-center {
+  background: #FFF;
 }
 
 .context.active {
