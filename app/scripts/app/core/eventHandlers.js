@@ -1,7 +1,7 @@
 define([
   'core/errorlog',
   'models/context',
-  'views/contextTodo',
+  'views/lists/contextTodos',
   'jquery',
   'underscore',
 ],
@@ -43,7 +43,7 @@ function (errlog, ContextModel, ContextTodoView, $, _) {
   function init (_app) {
     return {
       contextDestroy: $.proxy(contextDestroy, _app),
-      contextRender: $.proxy(contextRender, _app),
+      contextRenderTodos: $.proxy(contextRenderTodos, _app),
       fetchLastContext: $.proxy(fetchLastContext, _app),
     };
   }
