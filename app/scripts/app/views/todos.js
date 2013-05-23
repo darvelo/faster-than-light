@@ -184,7 +184,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // if the contextView already exists in the app's views cache,
       // move the element to the next open pane and toggle that pane open
       if (!cachedView) {
-        contextModel.trigger('context:render', contextModel);
+        contextModel.trigger('context:renderTodos', contextModel);
         cachedView = this.app.views.contextViews[id];
       }
 

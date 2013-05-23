@@ -87,7 +87,6 @@ function(
     this.data.bootstrap(window.bootstrap);
 
 
-
     Backbone.history.start({ pushState: true });
 
 
@@ -135,6 +134,8 @@ function(
 
     setupListeners: function setupListeners () {
       this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.contextDestroy);
+      this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodos);
+      this.listenTo(this.collections.contexts, 'fetch:lastContext', this.eventHandlers.fetchLastContext);
     },
 
     createRouter: function createRouter () {
