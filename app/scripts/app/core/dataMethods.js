@@ -1,12 +1,13 @@
 define([
   'core/errorlog',
+  'core/errorTypes',
   'core/util',
   'backbone',
   'jquery',
   'underscore',
 ],
 
-function (errlog, util, Backbone, $, _) {
+function (errlog, errTypes, util, Backbone, $, _) {
   'use strict';
 
   var app;
@@ -29,6 +30,8 @@ function (errlog, util, Backbone, $, _) {
   }
 
   function validate (data) {
+    var err;
+
     if (!data) {
       err = new Error('data did not exist in app validation method. App may be in an inconsistent state');
       errlog(1, err);
@@ -39,100 +42,171 @@ function (errlog, util, Backbone, $, _) {
     /*
      * Validation mechanisms
      */
-    var userValidated = data.user && app.validators.user(data.user) === null;
 
-    var contextsValidated, invalidContexts;
-    if (_.isArray(data.contexts)) {
-      invalidContexts = _.filter(data.contexts, function (context) {
-        // if valid, will return null, and not trigger the filter
-        return app.validators.context(context);
+    var usersValidated, tmpUsers;
+    var groupedUsers = {};
+    // put user(s) into array if they're not already
+    if (_.isArray(data.user)) {
+      tmpUsers = data.user;
+    } else if (_.isObject(data.user)) {
+      tmpUsers = [data.user];
+    }
+
+    // if we have no array, it's invalid by default
+    if (_.isArray(tmpUsers)) {
+      // return a group of validation errors to send to the server
+      groupedUsers = _.groupBy(tmpUsers, function (user) {
+        var result = app.validators.user(user);
+
+        return result ? 'invalid' : 'valid';
       }, app);
 
-      if (_.isEmpty(invalidContexts)) {
+      if (_.isEmpty(groupedUsers.invalid)) {
+        usersValidated = true;
+      }
+    }
+
+    var contextsValidated;
+    var groupedContexts = {};
+    if (_.isArray(data.contexts)) {
+      // return a group of validation errors to send to the server
+      groupedContexts = _.groupBy(data.contexts, function (context) {
+        var result = app.validators.context(context);
+
+        return result ? 'invalid' : 'valid';
+      }, app);
+
+      if (_.isEmpty(groupedContexts.invalid)) {
         contextsValidated = true;
       }
     }
 
-    var projectsValidated, invalidProjects;
+    var projectsValidated;
+    var groupedProjects = {};
     if (_.isArray(data.projects)) {
-      invalidProjects = _.filter(data.projects, function (project) {
-        // if valid, will return null, and not trigger the filter
-        return app.validators.project(project);
+      // return a group of validation errors to send to the server
+      groupedProjects = _.groupBy(data.projects, function (project) {
+        var result = app.validators.project(project);
+
+        return result ? 'invalid' : 'valid';
       }, app);
 
-      if (_.isEmpty(invalidProjects)) {
+      if (_.isEmpty(groupedProjects.invalid)) {
         projectsValidated = true;
       }
     }
 
-    var auxProjectsValidated, invalidAuxProjects;
+    var auxProjectsValidated;
+    var groupedAuxProjects = {};
     // auxProjects may be empty, which is fine
     if (!data.auxProjects || (_.isArray(data.auxProjects) && _.isEmpty(data.auxProjects))) {
       auxProjectsValidated = true;
     } else if (_.isArray(data.auxProjects)) {
-      invalidAuxProjects = _.filter(data.auxProjects, function (auxProject) {
-        // if valid, will return null, and not trigger the filter
-        return app.validators.project(auxProject);
+      // return a group of validation errors to send to the server
+      groupedAuxProjects = _.groupBy(data.auxProjects, function (auxProject) {
+        var result = app.validators.project(auxProject);
+
+        return result ? 'invalid' : 'valid';
       }, app);
 
-      if (_.isEmpty(invalidAuxProjects)) {
+      if (_.isEmpty(groupedAuxProjects.invalid)) {
         auxProjectsValidated = true;
       }
     }
 
-    var tasksValidated, invalidTasks;
+    var tasksValidated;
+    var groupedTasks = {};
     if (_.isArray(data.tasks)) {
-      invalidTasks = _.filter(data.tasks, function (task) {
-        // if valid, will return null, and not trigger the filter
-        return app.validators.task(task);
+      // return a group of validation errors to send to the server
+      groupedTasks = _.groupBy(data.tasks, function (task) {
+        var result = app.validators.task(task);
+
+        return result ? 'invalid' : 'valid';
       }, app);
 
-      if (_.isEmpty(invalidTasks)) {
+      if (_.isEmpty(groupedTasks.invalid)) {
         tasksValidated = true;
       }
     }
 
     return {
-      user: userValidated,
-      invalidUser: data.user,
+      users: usersValidated,
+      usersErrors: groupedUsers.invalid,
 
       contexts: contextsValidated,
-      invalidContexts: invalidContexts,
+      contextsErrors: groupedContexts.invalid,
 
       projects: projectsValidated,
-      invalidProjects: invalidProjects,
+      projectsErrors: groupedProjects.invalid,
 
       auxProjects: auxProjectsValidated,
-      invalidAuxProjects: invalidAuxProjects,
+      auxProjectsErrors: groupedAuxProjects.invalid,
 
       tasks: tasksValidated,
-      invalidTasks: invalidTasks,
+      tasksErrors: groupedTasks.invalid,
     };
   }
 
   function merge (data) {
     var valid = validate(data);
+    var scrubbedData = {};
 
-    // merge what's there ()
+    // merge this new data with the app's global collections.
+    // this will not remove data already in the collection, only add and update.
+    //
+    // only the data that was brought in gets merged.
+    // user data is not expected to be merged.
+    // contexts gets set last since other methods do the same. being consistent :)
+    if (data.tasks) {
+      scrubbedData.tasks = handleTasksErrors(data, valid, 'merge'),
+      app.collections.tasks.set(scrubbedData.tasks, { remove: false });
+    }
 
+    if (data.auxProjects) {
+      scrubbedData.auxProjects = handleAuxProjectsErrors(data, valid, 'merge'),
+    // projects and auxProjects go in the same global projects collection
+      app.collections.projects.set(scrubbedData.auxProjects, { remove: false });
+    }
+
+    if (data.projects) {
+      scrubbedData.projects = handleProjectsErrors(data, valid, 'merge'),
+      app.collections.projects.set(scrubbedData.projects, { remove: false });
+    }
+
+    if (data.contexts) {
+      scrubbedData.contexts = handleContextsErrors(data, valid, 'merge'),
+      app.collections.contexts.set(scrubbedData.contexts, { remove: false });
+    }
+
+    return app;
   }
 
-  function bootstrap (bootstrapObject) {
-    var err;
+  function bootstrap (data) {
+    var valid;
+    var noBootstrap;
+    var scrubbedData;
+
+    if (!data || _.isArray(data) || ! _.isObject(data) || _.isEmpty(data)) {
+      noBootstrap = true;
+    } else {
+      valid = validate(data);
+    }
 
     /*
      * Set up user model
      */
-    if (!bootstrapObject || !bootstrapObject.user) {
-      // need user info before moving on
-      app.user.fetch({ async: false });
+    // only triggers if bootstrap exists -- returns and prevents app from continuing
+    if (!noBootstrap && !valid.users) {
+      handleUserErrors({ user: data.user }, valid, 'bootstrap');
+      return;
     }
 
-    if (bootstrapObject.user && _.isObject(bootstrapObject.user) &&
-        // if validation passes
-        app.validators.user(bootstrapObject.user) === null) {
-
-      app.models.user.set(bootstrapObject.user);
+    if (noBootstrap) {
+      // need user info before moving on
+      app.user.fetch({ async: false });
+    } else {
+      // user is validated at this point
+      app.models.user.set(data.user);
     }
 
     app.models.user.app = app;
@@ -141,72 +215,141 @@ function (errlog, util, Backbone, $, _) {
     // they're needed for setting up layout sizes and state
     app.trigger('todos:init');
 
-    if (!bootstrapObject || _.isArray(bootstrapObject) || ! _.isObject(bootstrapObject) || _.isEmpty(bootstrapObject)) {
-      err = new Error('Bootstrap does not exist!');
-      errlog(2, err);
+    if (noBootstrap) {
       return app.data.empty();
     }
 
-    return app.data.reset(bootstrapObject);
+    scrubbedData = handleAllErrors(data, valid, 'bootstrap');
+
+    // projects and auxProjects go in the same global projects collection
+    scrubbedData.projects = scrubbedData.projects.concat(scrubbedData.auxProjects);
+
+    // reset the app's global collections with the fresh data.
+    // this will trigger the 'reset' event which other components may act upon.
+    //
+    // contexts gets reset last since that's the top-level dataset signifying completion
+    app.collections.tasks.reset(scrubbedData.tasks);
+    app.collections.projects.reset(scrubbedData.projects);
+    app.collections.contexts.reset(scrubbedData.contexts);
+
+    return app;
   }
 
   function reset (data) {
-    var err;
     var valid = validate(data);
+    var scrubbedData = handleAllErrors(data, valid, 'reset');
+
+    // projects and auxProjects go in the same global projects collection
+    scrubbedData.projects = scrubbedData.projects.concat(scrubbedData.auxProjects);
+
+    // reset the app's global collections with the fresh data.
+    // this will trigger the 'reset' event which other components may act upon.
+    //
+    // contexts gets reset last since that's the top-level dataset signifying completion
+    app.user.set(scrubbedData.user);
+    app.collections.tasks.reset(scrubbedData.tasks);
+    app.collections.projects.reset(scrubbedData.projects);
+    app.collections.contexts.reset(scrubbedData.contexts);
+
+    return app;
+  }
+
+  /*
+   * Error handling:
+   *   If data returned from server isn't in the proper format,
+   *   log the error and set the temp variable to an empty array or object.
+   *   When the final calls set the global collections/models, they'll be a noop.
+   */
+  function handleAllErrors (data, valid, caller) {
     var user, contexts, projects, auxProjects, tasks;
 
-    /*
-     * Error handling:
-     *   If data returned from server isn't in the proper format,
-     *   log the error and set the temp variable to an empty array or object.
-     *   When the final calls set the global collections/models, they'll be a noop.
-     */
-    if (data.user && _.isObject(data.user) && valid.user) {
+    user = handleUserErrors({ user: data.user }, valid, caller);
+    contexts = handleContextsErrors({ contexts: data.contexts }, valid, caller);
+    projects = handleProjectsErrors({ projects: data.projects }, valid, caller);
+    auxProjects = handleAuxProjectsErrors({ auxProjects: data.auxProjects }, valid, caller);
+    tasks = handleTasksErrors({ tasks: data.tasks }, valid, caller);
+
+    return {
+      user: user,
+      contexts: contexts,
+      projects: projects,
+      auxProjects: auxProjects,
+      tasks: tasks,
+    };
+  }
+
+  function handleUserErrors (data, valid, caller) {
+    var err;
+    var user;
+
+    if (data.user && valid.users) {
       // deep clone user and remove properties of visual
       // settings that may have been set by another client
       user = util.deleteUserProps(data.user);
     } else if (!data.user) {
-      err = new Error('User object in data reset did not exist');
+      err = new Error('User object in data ' + caller + ' did not exist');
       errlog(2, err);
 
       user = {};
     } else {
-      err = new Error('User object in data reset was not in the proper form');
-      err.user = valid.invalidUser;
+      err = valid.usersErrors;
+      err.callerMessage = 'User object in data ' + caller + ' was not in the proper form';
       errlog(2, err);
 
       user = {};
     }
+
+    return user;
+  }
+
+
+  function handleContextsErrors (data, valid, caller) {
+    var err;
+    var contexts;
 
     if (data.contexts && _.isArray(data.contexts) && valid.contexts) {
       contexts = data.contexts;
     } else if (!data.contexts) {
-      err = new Error('Contexts array in data reset did not exist');
+      err = new Error('Contexts array in data ' + caller + ' did not exist');
       errlog(3, err);
 
       contexts = [];
     } else {
-      err = new Error('Contexts array in data reset was not in the proper form');
-      err.contexts = valid.invalidContexts;
+      err = valid.contextsErrors;
+      err.callerMessage = 'Projects array in data ' + caller + ' was not in the proper form';
       errlog(3, err);
 
       contexts = [];
     }
+
+    return contexts;
+  }
+
+  function handleProjectsErrors (data, valid, caller) {
+    var err;
+    var projects;
 
     if (data.projects && _.isArray(data.projects) && valid.projects) {
       projects = data.projects;
     } else if (!data.projects) {
-      err = new Error('Projects array in data reset did not exist');
+      err = new Error('Projects array in data ' + caller + ' did not exist');
       errlog(3, err);
 
       projects = [];
     } else {
-      err = new Error('Projects array in data reset was not in the proper form');
-      err.projects = valid.invalidProjects;
+      err = valid.projectsErrors;
+      err.callerMessage = 'Projects array in data ' + caller + ' was not in the proper form';
       errlog(3, err);
 
       projects = [];
     }
+
+    return projects;
+  }
+
+  function handleAuxProjectsErrors (data, valid, caller) {
+    var err;
+    var auxProjects;
 
     // auxProjects isn't strictly necessary, so no error sent
     if (!data.auxProjects || (_.isArray(data.auxProjects) && _.isEmpty(data.auxProjects))) {
@@ -214,41 +357,36 @@ function (errlog, util, Backbone, $, _) {
     } else if (data.auxProjects && _.isArray(data.auxProjects) && valid.auxProjects) {
       auxProjects = data.auxProjects;
     } else {
-      err = new Error('auxProjects array in data reset was not in the proper form');
-      err.auxProjects = valid.invalidAuxProjects;
+      err = valid.auxProjectsErrors;
+      err.callerMessage = 'auxProjects array in data ' + caller + ' was not in the proper form';
       errlog(3, err);
 
       auxProjects = [];
     }
 
+    return auxProjects;
+  }
+
+  function handleTasksErrors (data, valid, caller) {
+    var err;
+    var tasks;
+
     if (data.tasks && _.isArray(data.tasks) && valid.tasks) {
       tasks = data.tasks;
     } else if (!data.tasks) {
-      err = new Error('Tasks array in data reset did not exist');
+      err = new Error('Tasks array in data ' + caller + ' did not exist');
       errlog(3, err);
 
       tasks = [];
     } else {
-      err = new Error('Tasks array in data reset was not in the proper form');
-      err.tasks = valid.invalidTasks;
+      err = valid.tasksErrors;
+      err.callerMessage = 'Tasks array in data ' + caller + ' was not in the proper form';
       errlog(3, err);
 
       tasks = [];
     }
 
-    // projects and auxProjects go in the same global projects collection
-    projects = projects.concat(auxProjects);
-
-    // reset the app's global collections with the fresh data.
-    // this will trigger the 'reset' event which other components may act upon.
-    //
-    // contexts gets reset last since that's the top-level dataset signifying completion
-    app.user.set(user);
-    app.collections.tasks.reset(tasks);
-    app.collections.projects.reset(projects);
-    app.collections.contexts.reset(contexts);
-
-    return app;
+    return tasks;
   }
 
   return function init (_app) {
@@ -257,8 +395,9 @@ function (errlog, util, Backbone, $, _) {
     return {
       empty: empty,
       fetch: fetch,
+      merge: merge,
       bootstrap: bootstrap,
       reset: reset,
     };
-  }
+  };
 });
