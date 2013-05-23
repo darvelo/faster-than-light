@@ -118,10 +118,13 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // render contexts in order so panes are opened the way they were last login
       _.each(lastContexts, function (contextId, position) {
         var contextModel = this.app.collections.contexts.get(contextId);
+        var notBootstrapped = _.find(contextModel.get('projects'), function (projectId) {
+          return !this.app.collections.projects.get(projectId);
+        }, this);
 
-        if (!contextModel) {
-          // this will cause the 'context:activate' event to be sent back to us later
-          this.app.collections.contexts.trigger('fetch:lastContext', contextId, position);
+        if (notBootstrapped) {
+          // these will cause the 'context:activate' event to be sent back to us later
+          this.app.collections.contexts.trigger('context:batchFetchAndActivate', contextId, position);
           return;
         }
 
@@ -134,15 +137,27 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
     createContextTodo: function createContextTodo (contextModel, /* optional */ position) {
       var id = contextModel.get('id');
 
-      var nextPane;
+      // if we don't yet have the associated data for this context, gotta fetch it first and re-fire the event
+      var notBootstrapped = _.find(contextModel.get('projects'), function (projectId) {
+        return !this.app.collections.projects.get(projectId);
+      }, this);
+
+      if (notBootstrapped) {
+        // these will cause the 'context:activate' event to be sent back to us later
+        this.app.collections.contexts.trigger('context:batchFetchAndActivate', id, position);
+        return;
+      }
+
       var innerLayout = this.app.innerLayout;
       var cachedView = this.app.views.contextViews[id];
 
+      var nextPane;
       var takenPanes = _.values(this.contextMap);
-      var takenPanesByPosition = _.invert(this.contextMap);;
+      var takenPanesByPosition = _.invert(this.contextMap);
 
       var paneConfig = this.app.config.paneConfig;
       var paneOrder = paneConfig.paneOrder;
+
       var replacementPaneOrder = paneConfig.replacementPaneOrder;
       var replacementPanePosition = replacementPaneOrder[0];
       var replacementId;
@@ -210,7 +225,13 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       }
 
       // have to replace the center pane with another contextView to make it seamless
+      // center.html( replacementPane.$el ) && toggle(replacementPane)
 
+
+      // have to make el redelegate in other method if it's being added from cache
+      // $el.remove() -- but not view.remove() nor _teardown -- still want backbone events to fire so it updates
+      //
+      // is this all correct??????
 
       paneCount = _.reduce(this.contextMap, function (memo, val) { return memo + (!!val ? 1: 0); }, 0);
       if (paneCount === 0) {
