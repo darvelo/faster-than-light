@@ -24,8 +24,7 @@ function (errlog, errTypes, util, Backbone, $, _) {
   function fetch () {
     app.collections.tasks.fetch();
     app.collections.projects.fetch();
-    app.collections.contexts.fetch();
-    app.collections.contexts.trigger('reset');
+    app.collections.contexts.fetch({ reset: true });
     return app;
   }
 
@@ -36,7 +35,8 @@ function (errlog, errTypes, util, Backbone, $, _) {
       err = new Error('data did not exist in app validation method. App may be in an inconsistent state');
       errlog(1, err);
 
-      return false;
+      // alert calling method that data didn't exist
+      return null;
     }
 
     /*
@@ -149,6 +149,12 @@ function (errlog, errTypes, util, Backbone, $, _) {
 
   function merge (data) {
     var valid = validate(data);
+
+    // there was no data, an error was sent to the server
+    if (valid === null) {
+      return;
+    }
+
     var scrubbedData = {};
 
     // merge this new data with the app's global collections.
@@ -190,6 +196,10 @@ function (errlog, errTypes, util, Backbone, $, _) {
       noBootstrap = true;
     } else {
       valid = validate(data);
+      // there was no data, an error was sent to the server
+      if (valid === null) {
+        return;
+      }
     }
 
     /*
@@ -237,6 +247,12 @@ function (errlog, errTypes, util, Backbone, $, _) {
 
   function reset (data) {
     var valid = validate(data);
+
+    // there was no data, an error was sent to the server
+    if (valid === null) {
+      return;
+    }
+
     var scrubbedData = handleAllErrors(data, valid, 'reset');
 
     // projects and auxProjects go in the same global projects collection
