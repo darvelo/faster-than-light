@@ -37,6 +37,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       this.listenTo(this.app.collections.contexts, 'reset', this.renderLastContexts);
       this.listenTo(this.app.collections.contexts, 'context:activate', this.createContextTodo);
       this.listenTo(this.app.collections.contexts, 'context:deactivate', this.removeContextTodo);
+      this.listenTo(this.app.collections.contexts, 'context:teardownView', this.removeContextTodo);
       this.listenTo(this.app.collections.contexts, 'destroy', this.removeContextTodo);
       // might be useful?
       this.listenTo(this.app, 'todos:saveLayout', this.saveLayoutSettings);
@@ -149,7 +150,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       }
 
       var innerLayout = this.app.innerLayout;
-      var cachedView = this.app.views.contextViews[id];
+      var cachedView = this.app.views.contextTodoViews[id];
 
       var nextPane;
       var takenPanes = _.values(this.contextMap);
@@ -189,7 +190,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // move the element to the next open pane and toggle that pane open
       if (!cachedView) {
         contextModel.trigger('context:renderTodos', contextModel);
-        cachedView = this.app.views.contextViews[id];
+        cachedView = this.app.views.contextTodoViews[id];
       }
 
       this.contextMap[id] = nextPane;

@@ -122,7 +122,7 @@ function(
       /*
        * Placeholder for cached Views of todo-list hierarchies by context id
        */
-      this.views.contextViews = {};
+      this.views.contextTodoViews = {};
 
       /*
        * ActionViews are main app contexts like: todo-list, calendar, statistics, settings, etc.
@@ -133,11 +133,11 @@ function(
     },
 
     addListeners: function addListeners () {
-      this.listenTo(this, 'context:viewRemove', this.eventHandlers.removeContextView);
       this.listenTo(this.collections.contexts, 'add', this.eventHandlers.contextSave);
-      this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.removeContextView);
-      this.listenTo(this.collections.contexts, 'reset', this.eventHandlers.teardownContextViews);
-      this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodo);
+      this.listenTo(this.collections.contexts, 'destroy', this.eventHandlers.removeContextTodoView);
+      this.listenTo(this.collections.contexts, 'reset', this.eventHandlers.teardownContextTodoViews);
+      this.listenTo(this.collections.contexts, 'context:teardownView', this.eventHandlers.removeContextTodoView);
+      this.listenTo(this.collections.contexts, 'context:renderTodos', this.eventHandlers.contextRenderTodoView);
       this.listenTo(this.collections.contexts, 'context:batchFetchAndActivate', this.eventHandlers.fetchContextBatchAndActivate);
     },
 

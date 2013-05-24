@@ -1,5 +1,5 @@
 define([
-  'views/lists/contextTodos',
+  'views/lists/contextTodo',
   'backbone',
   'jquery',
   'underscore',

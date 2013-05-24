@@ -24,17 +24,17 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
       });
   }
 
-  function removeContextView (contextModel) {
+  function removeContextTodoView (contextModel) {
     var contextId = contextModel.get('id');
-    delete app.views.contextViews[contextId];
+    delete app.views.contextTodoViews[contextId];
 
     return app;
   }
 
-  function contextRenderTodo (contextModel) {
-    var contextView = new ContextTodoView({ app: app, model: contextModel });
+  function contextRenderTodoView (contextModel) {
+    var contextTodoView = new ContextTodoView({ app: app, model: contextModel });
 
-    app.views.contextViews[contextModel.get('id')] = contextView.render();
+    app.views.contextTodoViews[contextModel.get('id')] = contextTodoView.render();
 
     return app;
   }
@@ -119,25 +119,25 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
     return dfd;
   }
 
-  function teardownContextViews () {
-    _.each(app.views.contextViews, function (view, contextId) {
+  function teardownContextTodoViews () {
+    _.each(app.views.contextTodoViews, function (view, contextId) {
       view._teardown();
     }, app);
 
-    app.views.contextViews = {};
+    app.views.contextTodoViews = {};
   }
 
   function init (_app) {
     app = _app;
 
     return {
-      contextDestroy: contextDestroy,
-      contextRenderTodo: contextRenderTodo,
+      removeContextTodoView: removeContextTodoView,
+      contextRenderTodoView: contextRenderTodoView,
       fetchContextBatchAndActivate: fetchContextBatchAndActivate,
       fetchContextBatch: fetchContextBatch,
       fetchContextModel: fetchContextModel,
       fetchContextData: fetchContextData,
-      teardownContextViews: teardownContextViews,
+      teardownContextTodoViews: teardownContextTodoViews,
     };
   }
 
