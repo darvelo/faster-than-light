@@ -1,7 +1,7 @@
 define([
   'core/errorlog',
   'models/context',
-  'views/lists/contextTodos',
+  'views/lists/contextTodo',
   'backbone',
   'jquery',
   'underscore',
@@ -24,7 +24,8 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
       });
   }
 
-  function contextDestroy (contextId) {
+  function removeContextView (contextModel) {
+    var contextId = contextModel.get('id');
     delete app.views.contextViews[contextId];
 
     return app;
