@@ -1,10 +1,9 @@
 define([
   'backbone',
-  'collections/tasks',
   'underscore',
 ],
 
-function (Backbone, TasksCollection, _) {
+function (Backbone, _) {
   'use strict';
 
   var Task = Backbone.Model.extend({
