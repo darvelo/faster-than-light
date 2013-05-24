@@ -1,25 +1,97 @@
 define([
+  'views/lists/contextTodos',
   'backbone',
+  'jquery',
   'underscore',
 ],
 
-function (Backbone, _) {
+function (ContextTodoView, Backbone, $, _) {
   'use strict';
 
   var BaseView = Backbone.View.extend({
+    /**********
+     * The [jQuery Documentation about promises](http://api.jquery.com/promise/) says that:
+     *
+     * Note: The returned Promise is linked to a Deferred object stored on the
+     * .data() for an element. Since the.remove() method removes the element's
+     * data as well as the element itself, it will prevent any of the element's
+     * unresolved Promises from resolving. If it is necessary to remove an element
+     * from the DOM before its Promise is resolved, use .detach() instead and
+     * follow with .removeData() after resolution.
+     *
+     ***********
+     * The use case for this is when a method remove()s the $el as an animation
+     * is expected to return a promise to another method.
+     *
+     * I'll be using promises to work with animations so I'm augmenting the View's
+     * remove() method to call .stop(true, true), clearing the queue and moving all
+     * animations to the final frame. This will resolve their promises.
+     *
+     * Unfortunately the animations are brought to the final frame after the promise
+     * callbacks are called if you're using the .promise() method to return a promise
+     * from the animation.
+     *
+     *
+     * /////////////////
+     * // THEREFORE!! //
+     * /////////////////
+     *
+     * If you want to have a promise returned on an animation for an element that was removed
+     * from the DOM, you NEED to put the callback in the OPTIONS of the animation function call,
+     * like:
+     *
+     * $el.slideUp({ duration: 100, done: doneCallback, fail: failCallback });
+     *
+     * NOT: $el.slideUp({ duration: 100 }).promise().done(doneCallback);
+     *
+     * The latter will NOT reflect the final state of the animation on .stop(true, true);
+     *
+     * In the former example, the promise callbacks receive the promise itself as the first argument,
+     * and Boolean true if the animation was stopped and jumpedToEnd.
+     *
+     *
+     *
+     * I'm not calling .detach() and .removeData() as mentioned because I don't plan to keep the $el
+     * around on .remove(). Use ._detach() on the View for that.
+     */
+
+
+    remove: function remove () {
+      // ensures stopListening is called on all subViews;
+      // _.each(this.subViews, function (subView, id) {
+      //   subView.remove();
+      // }, this);
+
+      this.$el.stop(true, true);
+      // this.$el.detach();
+      // this.$el.removeData();
+
+      Backbone.View.remove.apply(this, arguments);
+    },
+
     _teardown: function _teardown () {
       _.each(this.subViews, function (subView, id) {
         subView._teardown();
         delete this.subViews[id];
       }, this);
+
+      this.parent = null;
+      this.project = null;
+
+      if (this instanceof ContextTodoView) {
+        this.model.trigger('context:teardownView', this.model);
+      }
+
+      // automatically calls .undelegateEvents() indirectly since
+      // jQuery removes DOM events on $el when it's removed from the DOM.
+      // also calls .stopListening() with no arguments to unbind all events.
       this.remove();
-      this.undelegateEvents(); // not sure if this is necessary after remove()
     },
 
     _teardownSubviews: function _teardownSubviews () {
       _.each(this.subViews, function (subView, id) {
         subView._teardownSubviews();
-        subView.remove()
+        subView.remove();
         delete this.subViews[id];
       }, this);
     },
@@ -43,8 +115,69 @@ function (Backbone, _) {
       }, this);
     },
 
-    _redelegateViewEvents: function _redelegateViewEvents () {
-      this.setElement(this.$el);
+    // _detach is an alternative to .remove(); it keeps all Backbone
+    // Event listeners -- doesn't call .stopListening() like .remove() does.
+    // jQuery events are still removed, so .delegateEvents() needs to be called
+    // when the $el is reinserted into the DOM.
+    _detach: function _detach () {
+      // this isn't necessary because .detach() keeps $el.data(), which will fire promises
+      // this.$el.stop(true, true);
+
+      // calling this instead of $el.remove() will keep any $el.data() that's on the $el, including promise callbacks.
+      // useful if you're planning to reinsert $el into the DOM at a later time.
+      this.$el.detach();
+
+      // to be called if you want to remove any $el.data() on the $el
+      // this.$el.removeData();
+    },
+
+    // When $el is _detach()'d from the DOM, all DOM events are removed.
+    // This reattaches DOM events to the $el.
+    //
+    // If you View.remove()'d the $el instead, you must manually re-register the Backbone event listeners.
+    // This means the view MUST have an .addListeners() method where the majority if not the totality
+    // of its Backbone Events are registered, to make doing this easy. This doesn't necessarily mean
+    // that the callbacks will be registered in the original order, so event callback flow may get to
+    // the re-registered callback(s) after other callbacks on other objects have already been called.
+    //
+    _reattach: function _reattachEvents () {
+      // call these two first so the event listeners
+      // are added before any child views' listeners
+      this.delegateEvents();
+      // shouldn't need this because .detach() doesn't call the native Backbone.View.remove()
+      // this.addListeners();
+
+      _.each(this.subViews, function (subView, id) {
+        subView._reattachEvents();
+      }, this);
+
+      // jquery ui events may not work again on reattach.. have to see. might need to .sortable() again
+    },
+
+    // read the note above _reattach() to know why this may be a bad idea.
+    _reRegisterBackboneAndjQueryEvents: function _reRegisterBackboneAndjQueryEvents () {
+      // call these two first so the event listeners
+      // are added before any child views' listeners
+      this.delegateEvents();
+      // this method may not even exist on the view calling it.
+      this.addListeners();
+
+      _.each(this.subViews, function (subView, id) {
+        subView._reRegisterBackboneAndjQueryEvents();
+      }, this);
+
+      // jquery ui events may not work again on reattach.. have to see. might need to .sortable() again
+    },
+
+    // this checks if the element is still attached to the DOM.
+    // useful for promises on animations that may return after the element has been .detach()'d.
+    isAttachedToDOM: function isAttachedToDOM () {
+      // original code from:
+      //   https://forum.jquery.com/topic/how-to-detect-if-a-node-is-attached-to-the-dom-using-a-reference-and-not-a-selector
+      //
+      // return $.contains(document.body, elem.jquery ? elem[0] : elem);
+
+      return $.contains(document.body, this.el);
     },
   });
 
