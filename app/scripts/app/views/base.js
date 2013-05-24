@@ -1,11 +1,12 @@
 define([
+  'core/util',
   'views/lists/contextTodo',
   'backbone',
   'jquery',
   'underscore',
 ],
 
-function (ContextTodoView, Backbone, $, _) {
+function (util, ContextTodoView, Backbone, $, _) {
   'use strict';
 
   var BaseView = Backbone.View.extend({
@@ -55,29 +56,31 @@ function (ContextTodoView, Backbone, $, _) {
      * around on .remove(). Use ._detach() on the View for that.
      */
 
-
+    // should almost never need to call this directly.
+    // call _teardown() instead to remove a view and its event listeners.
     remove: function remove () {
-      // ensures stopListening is called on all subViews;
-      // _.each(this.subViews, function (subView, id) {
-      //   subView.remove();
-      // }, this);
-
+      // resolves all promises on animations
       this.$el.stop(true, true);
       // this.$el.detach();
       // this.$el.removeData();
 
-      Backbone.View.remove.apply(this, arguments);
+      return Backbone.View.remove.apply(this, arguments);
     },
 
     _teardown: function _teardown () {
       _.each(this.subViews, function (subView, id) {
         subView._teardown();
-        delete this.subViews[id];
+        // remove object reference to the view for garbage collection
+        this.subViews[id] = null;
       }, this);
 
+      // remove all other references to other objects.
+      // can be fairly liberal with this and include catch-all
+      // properties from all kinds of views since it's a null assignment.
       this.parent = null;
       this.project = null;
 
+      // trigger removal of references to this view from other objects
       if (this instanceof ContextTodoView) {
         this.model.trigger('context:teardownView', this.model);
       }
@@ -86,18 +89,37 @@ function (ContextTodoView, Backbone, $, _) {
       // jQuery removes DOM events on $el when it's removed from the DOM.
       // also calls .stopListening() with no arguments to unbind all events.
       this.remove();
+
+      return this;
     },
 
     _teardownSubviews: function _teardownSubviews () {
       _.each(this.subViews, function (subView, id) {
-        subView._teardownSubviews();
-        subView.remove();
-        delete this.subViews[id];
+        subView._teardown();
+        // remove object reference to the view for garbage collection
+        this.subViews[id] = null;
       }, this);
+
+      return this;
     },
 
+    // redelegats jQuery DOM events only for subView(s), specified by selector(s).
+    // with this, you can even specify a new element to delegate subView events to,
+    // by using a different selector than the subView's $el (uses view.setElement)
+    // altenatively, if selector is a DOM element, or jQuery object with the first
+    // in the index, being the subView's el, it'll simply call subView.delegateEvents.
     _redelegateSubViewEvents: function _redelegateSubViewEvents (selector, subView) {
       var selectors;
+
+      // if we're just redelegating events on the same element, use this shortcut
+      if (subView) {
+        if ((selector instanceof $ && (selector[0] === subView.el)) ||
+            (util.isADomElementOrNode(selector) && (selector === subView.el))) {
+
+          subView.delegateEvents();
+          return;
+        }
+      }
 
       if (_.isObject(selector)) {
         selectors = selector;
@@ -120,7 +142,9 @@ function (ContextTodoView, Backbone, $, _) {
     // jQuery events are still removed, so .delegateEvents() needs to be called
     // when the $el is reinserted into the DOM.
     _detach: function _detach () {
-      // this isn't necessary because .detach() keeps $el.data(), which will fire promises
+      // this probably isn't necessary because .detach() keeps $el.data(), which will fire promises.
+      // since the view shouldn't mess with other views, this shouldn't be a problem.
+      // the only case I can think of is if a view triggers a transition after animation.. but I dunno.
       // this.$el.stop(true, true);
 
       // calling this instead of $el.remove() will keep any $el.data() that's on the $el, including promise callbacks.
@@ -129,6 +153,8 @@ function (ContextTodoView, Backbone, $, _) {
 
       // to be called if you want to remove any $el.data() on the $el
       // this.$el.removeData();
+
+      return this;
     },
 
     // When $el is _detach()'d from the DOM, all DOM events are removed.
@@ -140,7 +166,7 @@ function (ContextTodoView, Backbone, $, _) {
     // that the callbacks will be registered in the original order, so event callback flow may get to
     // the re-registered callback(s) after other callbacks on other objects have already been called.
     //
-    _reattach: function _reattachEvents () {
+    _reattachEvents: function _reattachEvents () {
       // call these two first so the event listeners
       // are added before any child views' listeners
       this.delegateEvents();
@@ -152,6 +178,8 @@ function (ContextTodoView, Backbone, $, _) {
       }, this);
 
       // jquery ui events may not work again on reattach.. have to see. might need to .sortable() again
+
+      return this;
     },
 
     // read the note above _reattach() to know why this may be a bad idea.
@@ -167,17 +195,8 @@ function (ContextTodoView, Backbone, $, _) {
       }, this);
 
       // jquery ui events may not work again on reattach.. have to see. might need to .sortable() again
-    },
 
-    // this checks if the element is still attached to the DOM.
-    // useful for promises on animations that may return after the element has been .detach()'d.
-    isAttachedToDOM: function isAttachedToDOM () {
-      // original code from:
-      //   https://forum.jquery.com/topic/how-to-detect-if-a-node-is-attached-to-the-dom-using-a-reference-and-not-a-selector
-      //
-      // return $.contains(document.body, elem.jquery ? elem[0] : elem);
-
-      return $.contains(document.body, this.el);
+      return this;
     },
   });
 
