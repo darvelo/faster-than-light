@@ -5,7 +5,7 @@ define([
   'views/lists/projects',
   'JST/contextPane',
   'jquery',
-  'underscore'
+  'underscore',
 ],
 
 function (innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, template, $, _) {
