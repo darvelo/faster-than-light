@@ -16,6 +16,6 @@ block main
 block append bottom-script
   script(src='/socket.io/socket.io.js')
   - if (dev)
-    script(src='/components/requirejs/require.js', data-main='/scripts/app/main')
+    script(src='/components/requirejs/require.js', data-main='/scripts/app/config')
   - else
     script(src='/scripts/app/main.js')
