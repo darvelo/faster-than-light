@@ -3,13 +3,13 @@ define([
   'jqueryui',
   'jqueryui-layout',
   'backbone',
-  'json2',
+  'json3',
   'socket.io',
   'core/errorlog',
   'underscore',
 ],
 
-function ($, $ui, $layout, Backbone, JSON, socket, errlog, _) {
+function ($, $ui, $layout, Backbone, JSON3, socket, errlog, _) {
   'use strict';
 
   var app;
