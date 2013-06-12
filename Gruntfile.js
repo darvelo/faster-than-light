@@ -22,6 +22,21 @@ module.exports = function (grunt) {
         dist: 'dist'
     };
 
+    var nodemonIgnoredFiles = [
+        'README.md',
+        'Gruntfile.js',
+        '/.git/',
+        '/node_modules/',
+        '/app/',
+        '/dist/',
+        '/test/',
+        '/temp/',
+        '/.tmp',
+        '/.sass-cache',
+        '*.txt',
+        '*.jade',
+    ];
+
     grunt.initConfig({
         yeoman: yeomanConfig,
         watch: {
@@ -48,6 +63,9 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/scripts/app/rawTemplates/**/*.hbs',
                 ],
                 tasks: ['handlebars:app'],
+                options: {
+                    livereload: false,
+                },
             },
             scripts: {
                 files: [
@@ -187,7 +205,7 @@ module.exports = function (grunt) {
                     // `name` and `out` is set by grunt-usemin
                     baseUrl: 'app/scripts/app',
                     paths: {
-                        json2: '../vendor/json2',
+                        json3: '../../components/json3/lib/json3',
                         jquery: '../../components/jquery/jquery',
                         jqueryui: '../../components/jquery-ui-custom/jquery-ui-1.10.2.custom',
                         'jqueryui-layout': '../../components/jquery-ui-layout/jquery.layout-latest',
@@ -196,7 +214,7 @@ module.exports = function (grunt) {
                         // templates are compiled from '/.tmp'!
                         // in dev, express handles mapping that to '/scripts/app/templates'
                         JST: '../../../.tmp/scripts/app/templates',
-                        underscore: '../../components/lodash/dist/lodash.min',
+                        underscore: '../../components/lodash/dist/lodash.compat',
                         backbone: '../../components/backbone/backbone',
                         // use 'empty:' if you're trying to serve live.
                         // But serving a local file makes builds easier.
@@ -207,10 +225,6 @@ module.exports = function (grunt) {
                         validator: '../vendor/validator',
                     },
                     shim: {
-                        json2: {
-                            deps: [],
-                            exports: 'JSON',
-                        },
                         jqueryui: {
                             deps: [
                                 'jquery',
@@ -393,7 +407,7 @@ module.exports = function (grunt) {
                     logConcurrentOutput: true,
                 },
                 tasks: [
-                    'nodemon:exec',
+                    'nodemon:nodeInspector',
                     'watch',
                 ],
             },
@@ -402,8 +416,8 @@ module.exports = function (grunt) {
                     logConcurrentOutput: true,
                 },
                 tasks: [
+                    'nodemon:nodeInspector',
                     'nodemon:dev',
-                    'nodemon:exec',
                     'watch',
                 ],
             },
@@ -514,50 +528,18 @@ module.exports = function (grunt) {
                     watchedFolders: ['.'],
                     debug: true,
                     delayTime: 1,
-                    ignoredFiles: [
-                        'README.md',
-                        'Gruntfile.js',
-                        '/.git/',
-                        '/node_modules/',
-                        '/app/',
-                        '/dist/',
-                        '/test/',
-                        '/temp/',
-                        '/.tmp',
-                        '/.sass-cache',
-                        '*.txt',
-                        '*.sublime-project',
-                        '*.sublime-workspace',
-                        '*.jade',
-                    ],
+                    ignoredFiles: nodemonIgnoredFiles,
                 }
             },
-            exec: {
+            nodeInspector: {
                 options: {
                     file: './node-inspector.js',
                     exec: 'node-inspector',
-                    ignoredFiles: [
-                        'README.md',
-                        'Gruntfile.js',
-                        '/.git/',
-                        '/node_modules/',
-                        '/app/',
-                        '/dist/',
-                        '/test/',
-                        '/temp/',
-                        '/.tmp',
-                        '/.sass-cache',
-                        '*.txt',
-                        '*.sublime-project',
-                        '*.sublime-workspace',
-                        '*.jade',
-                    ],
+                    ignoredFiles: nodemonIgnoredFiles,
                 },
             },
         },
     });
-
-    grunt.registerTask('noop', []);
 
     grunt.registerTask('serva-express', [
         'concurrent:server',
@@ -570,12 +552,12 @@ module.exports = function (grunt) {
         // 'open',
     ]);
 
-    grunt.registerTask('serva-nodemon', [
+    grunt.registerTask('server', [
         'concurrent:server',
         'concurrent:nodemon',
     ]);
 
-    grunt.registerTask('server', function (target) {
+/*    grunt.registerTask('server', function (target) {
         // not using grunt in production
         // if (target === 'dist') {
         //     return grunt.task.run(['build', 'open', 'connect:dist:keepalive']);
@@ -589,7 +571,7 @@ module.exports = function (grunt) {
             'watch',
         ]);
     });
-
+*/
     grunt.registerTask('test', [
         'clean:server',
         'concurrent:test',
