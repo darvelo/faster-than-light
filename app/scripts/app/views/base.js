@@ -1,6 +1,6 @@
 define([
   'core/util',
-  'views/lists/contextTodo',
+  'views/todo/contextTodo',
   'backbone',
   'jquery',
   'underscore',
@@ -45,10 +45,13 @@ function (util, ContextTodoView, Backbone, $, _) {
      *
      * NOT: $el.slideUp({ duration: 100 }).promise().done(doneCallback);
      *
-     * The latter will NOT reflect the final state of the animation on .stop(true, true);
+     * The latter will NOT reflect the final state of the animation after .stop(true, true); is called.
      *
-     * In the former example, the promise callbacks receive the promise itself as the first argument,
+     * In the former example, the promise callbacks will receive the promise itself as the first argument,
      * and Boolean true if the animation was stopped and jumpedToEnd.
+     *
+     * I can use util.isAttachedToDOM(el) inside a promise callback for a nice check.
+     *
      *
      *
      *
@@ -64,7 +67,7 @@ function (util, ContextTodoView, Backbone, $, _) {
       // this.$el.detach();
       // this.$el.removeData();
 
-      return Backbone.View.remove.apply(this, arguments);
+      return Backbone.View.prototype.remove.apply(this, arguments);
     },
 
     _teardown: function _teardown () {
@@ -114,7 +117,7 @@ function (util, ContextTodoView, Backbone, $, _) {
       // if we're just redelegating events on the same element, use this shortcut
       if (subView) {
         if ((selector instanceof $ && (selector[0] === subView.el)) ||
-            (util.isADomElementOrNode(selector) && (selector === subView.el))) {
+            (_.isElement(selector) && (selector === subView.el))) {
 
           subView.delegateEvents();
           return;
