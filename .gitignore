@@ -5,7 +5,6 @@ dist
 app/components/*
 !app/components/jquery-ui-custom
 !app/components/jquery-ui-layout
-app/scripts/app/templates/*
 *.sublime-project
 *.sublime-workspace
 count-lines.sh
