@@ -96,12 +96,17 @@ function(
 
   App.prototype = {
     views: {},
+    // used to hold references to objects
+    // that are referenced by a model Id
+    listsById: {},
     routers: {},
     models: {},
     collections: {},
     currentView: null,
 
     initializeData: function initializeData () {
+      this.listsById.collections = {};
+
       /*
        * Instantiate empty global models and collections that other,
        * local collections, and views, will reference once populated
@@ -110,9 +115,16 @@ function(
       this.collections.contexts = new ContextsCollection([]); // comparatorItem is always 'order'
       this.collections.projects = new ProjectsCollection([], { comparatorItem: 'id' });
       this.collections.tasks = new TasksCollection([], { comparatorItem: 'id' });
+
+      /*
+       * Placeholder for collections of appearances of a Model by modelId (type AppearanceModel)
+       */
+      this.listsById.collections.appearances = {};
     },
 
     createViews: function createViews () {
+      this.listsById.views = {};
+
       /*
        * Create empty views
        */
@@ -120,9 +132,9 @@ function(
       this.views.app.render();
 
       /*
-       * Placeholder for cached Views of todo-list hierarchies by context id
+       * Placeholder for cached Views of todo-list hierarchies by context id (type ContextTodoView)
        */
-      this.views.contextTodoViews = {};
+      this.listsById.views.contextTodoViews = {};
 
       /*
        * ActionViews are main app contexts like: todo-list, calendar, statistics, settings, etc.
