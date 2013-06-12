@@ -1,8 +1,9 @@
 define([
   'backbone',
+  'underscore',
 ],
 
-function (Backbone) {
+function (Backbone, _) {
   'use strict';
 
   var AppRouter = Backbone.Router.extend({
@@ -16,6 +17,32 @@ function (Backbone) {
 
     initialize: function initialize (options) {
       this.app = options.app;
+    },
+
+    // from http://stackoverflow.com/questions/7563949/backbone-js-get-current-route
+    current : function () {
+      var Router = this;
+      var fragment = Backbone.history.fragment;
+      var routes = _.pairs(Router.routes);
+      var route = null, params = null, matched;
+
+      matched = _.find(routes, function(handler) {
+        route = _.isRegExp(handler[0]) ? handler[0] : Router._routeToRegExp(handler[0]);
+        return route.test(fragment);
+      });
+
+      if(matched) {
+        // NEW: Extracts the params using the internal
+        // function _extractParameters
+        params = Router._extractParameters(route, fragment);
+        route = matched[1];
+      }
+
+      return {
+        route : route,
+        fragment : fragment,
+        params : params
+      };
     },
 
     home: function home () {
