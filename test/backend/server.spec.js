@@ -9,10 +9,27 @@ var chai = require('chai'),
 chai.should();
 chai.use(supertestChai.httpAsserts);
 
-//process.env.NODE_ENV = 'dev';
-var app = require('./zero.js');
+var app = source('server.js');
 
 describe('User API',function(){
+
+  it('GET /404 should return 404', function (done) {
+    request(app)
+      .get('/404')
+      .end(function (res) {
+        res.should.have.status(404);
+        done();
+      });
+  });
+
+  it('GET /500 should return 500', function (done) {
+    request(app)
+      .get('/500')
+      .end(function (res) {
+        res.should.have.status(500);
+        done();
+      });
+  });
 
   it('GET /user should return 201', function(done){
     request(app)
