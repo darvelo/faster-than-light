@@ -2,10 +2,10 @@ node_modules
 dist
 .tmp
 .sass-cache
-app/components/*
+coverage
+app/components
 !app/components/jquery-ui-custom
 !app/components/jquery-ui-layout
 *.sublime-project
 *.sublime-workspace
-count-lines.sh
 .nodemonignore
