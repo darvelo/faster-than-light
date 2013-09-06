@@ -1,7 +1,7 @@
 define([
   'JST/todos',
   'views/base',
-  'views/lists/contextPanes',
+  // 'views/todo/contextTodo',
   'views/lists/contexts',
   'views/config/todosLayout',
   'views/config/contextsLayout',
@@ -9,7 +9,7 @@ define([
   'underscore',
 ],
 
-function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, innerLayoutConfigGen, $, _) {
+function (template, BaseView, /*ContextPanes,*/ ContextList, outerLayoutConfigGen, innerLayoutConfigGen, $, _) {
   'use strict';
 
   var TodosView = BaseView.extend({
