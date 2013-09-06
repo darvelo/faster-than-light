@@ -1,12 +1,22 @@
+/*
+ * The purpose of this module is to help you with managing nested
+ * Backbone Views, while helping you to prevent memory leaks with
+ * methods to get rid of zombie views. There's also a .remove()
+ * method replacement to ensure handling of jQuery animation promises.
+ *
+ * Related reading:
+ *   http://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple/
+ *   http://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner/
+ *   http://ianstormtaylor.com/break-apart-your-backbonejs-render-methods/
+ *   https://paydirtapp.com/blog/backbone-in-practice-memory-management-and-event-bindings/
+ */
 define([
-  'core/util',
-  'views/todo/contextTodo',
   'backbone',
   'jquery',
   'underscore',
 ],
 
-function (util, ContextTodoView, Backbone, $, _) {
+function (Backbone, $, _) {
   'use strict';
 
   var BaseView = Backbone.View.extend({
@@ -64,28 +74,23 @@ function (util, ContextTodoView, Backbone, $, _) {
     remove: function remove () {
       // resolves all promises on animations
       this.$el.stop(true, true);
-      // this.$el.detach();
-      // this.$el.removeData();
 
       return Backbone.View.prototype.remove.apply(this, arguments);
     },
 
-    _teardown: function _teardown () {
+    _teardown: function _teardown (options) {
+      options = options || {};
+
       _.each(this.subViews, function (subView, id) {
         subView._teardown();
         // remove object reference to the view for garbage collection
-        this.subViews[id] = null;
+        delete this.subViews[id];
       }, this);
 
-      // remove all other references to other objects.
-      // can be fairly liberal with this and include catch-all
-      // properties from all kinds of views since it's a null assignment.
-      this.parent = null;
-      this.project = null;
-
-      // trigger removal of references to this view from other objects
-      if (this instanceof ContextTodoView) {
-        this.model.trigger('context:teardownView', this.model);
+      // this can be used to clean up any external references
+      // to the view before it's finally removed from the DOM
+      if (_.isFunction(options.beforeRemove)) {
+        options.beforeRemove.call(this);
       }
 
       // automatically calls .undelegateEvents() indirectly since
@@ -100,43 +105,48 @@ function (util, ContextTodoView, Backbone, $, _) {
       _.each(this.subViews, function (subView, id) {
         subView._teardown();
         // remove object reference to the view for garbage collection
-        this.subViews[id] = null;
+        delete this.subViews[id];
       }, this);
 
       return this;
     },
 
-    // redelegats jQuery DOM events only for subView(s), specified by selector(s).
-    // with this, you can even specify a new element to delegate subView events to,
-    // by using a different selector than the subView's $el (uses view.setElement)
-    // altenatively, if selector is a DOM element, or jQuery object with the first
-    // in the index, being the subView's el, it'll simply call subView.delegateEvents.
-    _redelegateSubViewEvents: function _redelegateSubViewEvents (selector, subView) {
+    // redelegates jQuery DOM events only for subView(s), specified by selector(s).
+    // With this, you can even specify a new element to delegate subView events to,
+    // by using a different selector than the subView's $el (uses view.setElement).
+    //
+    // This function should be run when you've re-rendered the template on an element.
+    // When you use `this.$el.empty()` or `this.$el.html(template())` the subviews on
+    // that element get removed from the DOM and have their jQuery events removed.
+    // If you want to re-set the subviews' `$el`s to the elements created by the template
+    // and rebind their jQuery events to these new elements, use this function.
+    //
+    //////////////////////
+    // IMPORTANT:
+    //
+    // This should NOT be used for subviews which have subviews, since it doesn't handle
+    // redelegating events on nested subviews, and since the final render call may also,
+    // depending on how the view's render method was written, create new nested subviews
+    // without having torn down references to the old ones.
+    _resetSubViews: function _resetSubViews (selector, subView) {
       var selectors;
-
-      // if we're just redelegating events on the same element, use this shortcut
-      if (subView) {
-        if ((selector instanceof $ && (selector[0] === subView.el)) ||
-            (_.isElement(selector) && (selector === subView.el))) {
-
-          subView.delegateEvents();
-          return;
-        }
-      }
 
       if (_.isObject(selector)) {
         selectors = selector;
       } else {
         selectors = {};
-        selectors[selector] = subView;
+
+        if (selector) {
+          selectors[selector] = subView;
+        }
       }
 
-      if (!selectors) {
+      if (_.isEmpty(selectors)) {
         return;
       }
 
       _.each(selectors, function (view, selector) {
-        view.setElement(this.$(selector)).render();
+        view.setElement( this.$(selector) ).render();
       }, this);
     },
 
@@ -191,7 +201,9 @@ function (util, ContextTodoView, Backbone, $, _) {
       // are added before any child views' listeners
       this.delegateEvents();
       // this method may not even exist on the view calling it.
-      this.addListeners();
+      if (_.isFunction(this.addListeners)) {
+        this.addListeners();
+      }
 
       _.each(this.subViews, function (subView, id) {
         subView._reRegisterBackboneAndjQueryEvents();
