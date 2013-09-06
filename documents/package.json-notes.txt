@@ -1,0 +1,2 @@
+// This is how you can split up your project into private npm modules, with repositories
+// "pzero-lib-database": "git+ssh://dave@serva:/opt/git/pzero-lib-database.git#v0.0.1", // '#' can mean branch, commit, or tag
