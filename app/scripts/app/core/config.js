@@ -24,6 +24,11 @@ function ($, $ui, $layout, Backbone, JSON3, socket, errlog, _) {
   // Backbone.$ = $;
   console.log('TODO: Make jQuery noConflict and Backbone.$ reference AMD jQuery');
 
+  function csrfSafeMethod (method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/).test(method);
+  }
+
   function modifyBackboneSync () {
     var oldSync = Backbone.sync,
         csrfToken = window.bootstrap && window.bootstrap.csrf;
@@ -37,8 +42,14 @@ function ($, $ui, $layout, Backbone, JSON3, socket, errlog, _) {
         var oldSuccess = options.success || function () {};
 
         var newOptions = _.extend(options, {
+          crossDomain: false, // ensures CSRF token isn't sent to other domains
           beforeSend: function (xhr) {
+            // performing a CSRF check even on safe methods can
+            // prevent users from being tricked into providing a
+            // malicious third party with sensitive (JSON) data
+            // if (!csrfSafeMethod(settings.type)) {
             xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+            // }
             return oldBeforeSend(xhr);
           },
 
