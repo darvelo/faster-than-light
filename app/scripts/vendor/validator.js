@@ -1,5 +1,5 @@
-define(function (require, exports, module) {
-/* Copyright (c) 2010 Chris O'Hara <cohara87@gmail.com>
+/*!
+ * Copyright (c) 2010 Chris O'Hara <cohara87@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -21,7 +21,22 @@ define(function (require, exports, module) {
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function(exports) {
+// follow Universal Module Definition (UMD) pattern for defining module as AMD, CommonJS, and Browser compatible
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['exports'], factory);
+    } else if (typeof exports === 'object') {
+        // CommonJS
+        factory(exports);
+    } else {
+        // Browser globals
+        // N.B. Here is a slight difference to regular UMD as the current API for node-validator in browser adds each export directly to the window
+        // rather than to a namespaced object such as window.nodeValidator, which would be better practice, but would break backwards compatibility
+        // as such unable to use build tools like grunt-umd
+        factory(root);
+    }
+}(this, function(exports) {
 
     var entities = {
         '&nbsp;': '\u00a0',
@@ -813,6 +828,8 @@ define(function (require, exports, module) {
             pattern = /[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
         } else if (version == 4 || version == 'v4') {
             pattern = /[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+        } else if (version == 5 || version == 'v5') {
+            pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
         } else {
             pattern = /[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
         }
@@ -828,6 +845,10 @@ define(function (require, exports, module) {
 
     Validator.prototype.isUUIDv4 = function() {
         return this.isUUID(4);
+    }
+
+    Validator.prototype.isUUIDv5 = function() {
+        return this.isUUID(5);
     }
 
     Validator.prototype.isDate = function() {
@@ -984,6 +1005,6 @@ define(function (require, exports, module) {
         return validator.check(str, fail_msg);
     }
 
-})(typeof(exports) === 'undefined' ? window : exports);
+    return exports;
 
-});
+}));
