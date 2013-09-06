@@ -1,7 +1,7 @@
 define([
   'core/errorlog',
   'models/context',
-  'views/lists/contextTodo',
+  'views/todo/contextTodo',
   'backbone',
   'jquery',
   'underscore',
@@ -26,7 +26,7 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
 
   function removeContextTodoView (contextModel) {
     var contextId = contextModel.get('id');
-    delete app.views.contextTodoViews[contextId];
+    delete app.listsById.views.contextTodoViews[contextId];
 
     return app;
   }
@@ -34,7 +34,7 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
   function contextRenderTodoView (contextModel) {
     var contextTodoView = new ContextTodoView({ app: app, model: contextModel });
 
-    app.views.contextTodoViews[contextModel.get('id')] = contextTodoView.render();
+    app.listsById.views.contextTodoViews[contextModel.get('id')] = contextTodoView.render();
 
     return app;
   }
@@ -120,17 +120,18 @@ function (errlog, ContextModel, ContextTodoView, Backbone, $, _) {
   }
 
   function teardownContextTodoViews () {
-    _.each(app.views.contextTodoViews, function (view, contextId) {
+    _.each(app.listsById.views.contextTodoViews, function (view, contextId) {
       view._teardown();
     }, app);
 
-    app.views.contextTodoViews = {};
+    app.listsById.views.contextTodoViews = {};
   }
 
   function init (_app) {
     app = _app;
 
     return {
+      contextSave: contextSave,
       removeContextTodoView: removeContextTodoView,
       contextRenderTodoView: contextRenderTodoView,
       fetchContextBatchAndActivate: fetchContextBatchAndActivate,
