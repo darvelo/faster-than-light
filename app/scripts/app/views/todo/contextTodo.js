@@ -22,6 +22,23 @@ function (innerLayoutConfig, ProjectsCollection, BaseView, ProjectsView, templat
       'paneClose': 'finishOtherPaneRemoval',
     },
 
+    _teardown: function () {
+      var options = {
+        beforeRemove: function () {
+          // remove all other references to other objects.
+          // can be fairly liberal with this and include catch-all
+          // properties from all kinds of views since it's a null assignment.
+          this.parent = null;
+          this.project = null;
+
+          // trigger removal of references to this view from other objects
+          this.model.trigger('context:teardownView', this.model);
+        },
+      };
+
+      BaseView.prototype._teardown.call(this, options);
+    },
+
     initialize: function initialize (options) {
       this.app = options.app;
       this.subViews = {};
