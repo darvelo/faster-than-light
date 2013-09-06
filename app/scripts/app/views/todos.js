@@ -150,7 +150,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       }
 
       var innerLayout = this.app.innerLayout;
-      var cachedView = this.app.views.contextTodoViews[id];
+      var cachedView = this.app.listsById.views.contextTodoViews[id];
 
       var nextPane;
       var takenPanes = _.values(this.contextMap);
@@ -190,7 +190,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // move the element to the next open pane and toggle that pane open
       if (!cachedView) {
         contextModel.trigger('context:renderTodos', contextModel);
-        cachedView = this.app.views.contextTodoViews[id];
+        cachedView = this.app.listsById.views.contextTodoViews[id];
       }
 
       this.contextMap[id] = nextPane;
@@ -208,7 +208,7 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       return this;
     },
 
-    removeContextTodo: function removeContextTodo (contextModel) {
+    removeContextTodo: function removeContextTodo (contextModel, /* optional */ position) {
       var id = contextModel.get('id');
       var innerLayout = this.app.innerLayout;
       var paneCount;
@@ -233,6 +233,10 @@ function (template, BaseView, ContextPanes, ContextList, outerLayoutConfigGen, i
       // $el.remove() -- but not view.remove() nor _teardown -- still want backbone events to fire so it updates
       //
       // is this all correct??????
+      //
+      // ._detach()
+      // pane.html( view._reattachEvents().$el ); in other method
+      //
 
       paneCount = _.reduce(this.contextMap, function (memo, val) { return memo + (!!val ? 1: 0); }, 0);
       if (paneCount === 0) {
