@@ -36,11 +36,11 @@ app.sessionSecret = 'my session secret';
 /*
  * App modules
  */
-app.api = require('./api');
+app.api = require('./lib/api');
 app.authentication = require('./lib/authentication');
 app.db = require('./lib/database/mongoose');
 app.errors = require('./lib/errorTypes');
-app.pages = require('./routes');
+app.pages = require('./lib/routes');
 app.reservedSlugs = require('./lib/slugs');
 app.sessionStore = new MongoStore({ mongoose_connection: app.db.mainDB.connections[0] });
 app.socketio = require('./lib/socket.io')(app);
@@ -104,9 +104,7 @@ passport.deserializeUser(function(id, done) {
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-if (process.env.SUBLIME) {
-  app.use(express.logger('short'));
-} else if (app.get('env') === 'development') {
+if (app.get('env') === 'development') {
   app.use(express.logger('dev'));
 }
 
@@ -159,10 +157,6 @@ app.use('/api', app.authentication.checkCredentials);
 // INPUT, and ANYTHING THAT WILL MAKE ITS WAY INTO HTML TAGS
 
 
-  /*  DocBlockr  */
-
-
-
 
 // our custom "verbose errors" setting
 // which we can use in the templates
@@ -171,7 +165,7 @@ app.enable('verbose errors');
 
 // disable them in production
 // use $ NODE_ENV=production node examples/error-pages
-if ('production' === app.get('env')) {
+if (app.get('env') === 'production') {
   app.disable('verbose errors');
 }
 
