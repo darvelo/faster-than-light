@@ -21,10 +21,8 @@ function ($, _) {
   function isAttachedToDOM (el) {
     // original code from:
     //   https://forum.jquery.com/topic/how-to-detect-if-a-node-is-attached-to-the-dom-using-a-reference-and-not-a-selector
-    //
-    // return $.contains(document.body, elem.jquery ? elem[0] : elem);
 
-    return $.contains(document.body, el.jquery ? el[0] : el); // just in case :)
+    return $.contains(document.body, el.jquery ? el[0] : el);
   }
 
   return {
